@@ -1,0 +1,58 @@
+﻿body.dark-mode {
+    background-color: #121212;
+    color: white;
+}
+
+.dark-mode .navbar {
+    background-color: #333;
+}
+
+.dark-mode .list-group-item {
+    background-color: #444;
+    color: white;
+}
+
+.form-builder {
+    min-height: 300px;
+    border: 2px dashed #ccc;
+    padding: 20px;
+    background: #f9f9f9;
+    position: relative;
+    overflow-y: auto;
+}
+/* Sidebar fixed */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    padding: 20px;
+    background: #f8f9fa;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.content-area {
+    margin-left: 270px;
+    padding: 20px;
+    overflow-y: scroll;
+    max-height: 90vh;
+}
+
+.list-group-item {
+    cursor: pointer;
+}
+
+.form-group {
+    position: relative;
+}
+/* Fix "Drag questions here..." text within the form layout */
+.form-builder p.text-muted {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    padding: 5px;
+    font-size: 1.1rem;
+    border-bottom: 2px dashed #ccc;
+    z-index: 1; /* Ensures the text stays on top */
+}

@@ -1,0 +1,147 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Create Form";
+    Layout = "~/Views/Shared/_FormLayout.cshtml";
+}
+    <script>
+        function toggleTheme() {
+            const theme = document.getElementById('theme-style');
+            const newTheme = theme.href.includes('light') ? 'dark-theme.css' : 'light-theme.css';
+            theme.href = newTheme;
+            localStorage.setItem('theme', newTheme);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = localStorage.getItem('theme') || 'light-theme.css';
+            document.getElementById('theme-style').href = savedTheme;
+        });
+    </script>
+
+    <style>
+       
+    </style>
+
+    
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar (fixed) -->
+            <div class="col-md-3 sidebar">
+                <h4>Question Types</h4>
+                <ul id="questionBank" class="list-group">
+                    <li class="list-group-item" draggable="true" data-type="text">Single-line Text</li>
+                    <li class="list-group-item" draggable="true" data-type="textarea">Multi-line Text</li>
+                    <li class="list-group-item" draggable="true" data-type="number">Number</li>
+                    <li class="list-group-item" draggable="true" data-type="checkbox">Checkbox (Multiple Choice)</li>
+                </ul>
+            </div>
+
+            <!-- Content area (scrollable) -->
+            <div class="col-md-9 content-area">
+                <h2>Form Builder</h2>
+                <p>Drag and drop to create a form template.</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4>Form Layout</h4>
+                        <div id="formArea" class="form-builder">
+                            <p class="text-muted">Drag questions here...</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-3" onclick="saveForm()">Save Form</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questionBank = document.getElementById('questionBank');
+            const formArea = document.getElementById('formArea');
+
+            new Sortable(questionBank, {
+                group: { name: 'questions', pull: 'clone', put: false },
+                sort: false,
+                animation: 150
+            });
+            
+            new Sortable(formArea, {
+                group: 'questions',
+                animation: 150,
+                onAdd: function (evt) {
+                    let type = evt.item.getAttribute('data-type');
+                    let newItem = document.createElement('div');
+                    newItem.classList.add('form-group', 'mb-3', 'p-2', 'border', 'rounded', 'position-relative');
+                    
+                    let label = document.createElement('label');
+                    label.textContent = 'Enter Your Question:';
+                    newItem.appendChild(label);
+
+                    let questionInput = document.createElement('input');
+                    questionInput.type = 'text';
+                    questionInput.classList.add('form-control', 'mb-2');
+                    questionInput.placeholder = 'Type your question here...';
+                    newItem.appendChild(questionInput);
+                    
+                    let input;
+                    if (type === 'textarea') {
+                        input = document.createElement('textarea');
+                        input.classList.add('form-control');
+                    } else if (type === 'checkbox') {
+                        input = document.createElement('div');
+                        input.classList.add('checkbox-options');
+                        input.innerHTML = `
+                            <input type="checkbox"> Option 1
+                            <button class="btn btn-sm btn-secondary ms-2" onclick="addCheckboxOption(this)">+</button>
+                        `;
+                    } else {
+                        input = document.createElement('input');
+                        input.type = type;
+                        input.classList.add('form-control');
+                    }
+                    
+                    if (type !== 'checkbox') newItem.appendChild(input);
+                    
+                    let correctAnswerLabel = document.createElement('label');
+                    correctAnswerLabel.textContent = 'Correct Answer:';
+                    correctAnswerLabel.classList.add('mt-2');
+                    newItem.appendChild(correctAnswerLabel);
+
+                    let correctAnswerInput = document.createElement('input');
+                    correctAnswerInput.type = 'text';
+                    correctAnswerInput.classList.add('form-control', 'mb-2');
+                    correctAnswerInput.placeholder = 'Enter correct answer';
+                    newItem.appendChild(correctAnswerInput);
+
+                    let requiredCheckbox = document.createElement('input');
+                    requiredCheckbox.type = 'checkbox';
+                    requiredCheckbox.classList.add('ms-2');
+                    let requiredLabel = document.createElement('label');
+                    requiredLabel.textContent = ' Required';
+                    requiredLabel.classList.add('ms-1');
+                    newItem.appendChild(requiredCheckbox);
+                    newItem.appendChild(requiredLabel);
+
+                    let deleteButton = document.createElement('button');
+                    deleteButton.innerHTML = '&times;';
+                    deleteButton.classList.add('btn', 'btn-danger', 'btn-sm', 'position-absolute', 'top-0', 'end-0', 'm-2');
+                    deleteButton.onclick = function() {
+                        newItem.remove();
+                    };
+                    newItem.appendChild(deleteButton);
+                    
+                    evt.item.replaceWith(newItem);
+                }
+            });
+        });
+        
+        function addCheckboxOption(button) {
+            let newOption = document.createElement('div');
+            newOption.innerHTML = `<input type="checkbox"> Option`;
+            button.parentElement.insertBefore(newOption, button);
+        }
+        
+        function saveForm() {
+            alert("Form saved successfully!");
+        }
+    </script>
