@@ -8,7 +8,7 @@
         // Relationships
         public int TemplateId { get; set; }
         public Template Template { get; set; }
-        public string? RespondentId { get; set; } // Null if guest
+        public string? RespondentId { get; set; }
         public Users? Respondent { get; set; }
         public ICollection<Answer> Answers { get; set; }
     }

@@ -8,6 +8,8 @@ namespace QuizFolio.Models
         public string Designation { get; set; }
         public DateTime LoginTime { get; set; }
         public bool IsBlocked { get; set; }
+        public ICollection<Template> Templates { get; set; }
+        public ICollection<Form> Forms { get; set; } = new List<Form>();
 
     }
 }
