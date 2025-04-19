@@ -7,10 +7,10 @@
 @{
     ViewData["Title"] = "Create New Template";
 }
-<div class="card-header">
-    <h5 class="card-title">Template Details</h5>
-    <div class="card-body">
-        <form asp-action="CreateTemplate" method="post">
+<form asp-action="CreateTemplate" method="post">
+    <div class="card-header">
+        <h5 class="card-title">Template Details</h5>
+        <div class="card-body">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="mb-3 form-floating">
                 <input asp-for="Title" class="form-control" />
@@ -22,8 +22,44 @@
                 <label asp-for="Description" class="form-label"></label>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-
-            
-        </form>
+        </div>
     </div>
-</div>
+    <br />
+    @for(var i = 0; i <Model.Questions.Count; i++)
+    {
+        <div class="card-header">
+            <div class="row">
+                <div class="col-10">
+                    <h5 class="card-title">Question @i</h5>
+                </div>
+                <div class="col-2">
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        @foreach (var type in Enum.GetValues(typeof(QuestionType)).Cast<QuestionType>())
+                        {
+                            <li>
+                                <a class="dropdown-item" onclick="setQuestionType('@i', '@type')">@type</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+           
+            <div class="card-body">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="mb-3 form-floating">
+                    <input asp-for="Questions[i].QuestionTitle" class="form-control" />
+                    <label asp-for="Questions[i].QuestionTitle" class="form-label"></label>
+                    <span asp-validation-for="Questions[i].QuestionTitle" class="text-danger"></span>
+                </div>
+                
+                <div class="mb-3 form-floating">
+                    <input asp-for="Description" class="form-control" />
+                    <label asp-for="Description" class="form-label"></label>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                
+            </div>
+        </div>
+    }
+    
+</form>
