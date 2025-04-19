@@ -3,8 +3,8 @@
     public class Question
     {
         public int Id { get; set; }
-        public string Text { get; set; }
-        public QuestionType Type { get; set; } // Enum (Text, Dropdown, etc.)
+        public string QuestionTitle { get; set; }
+        public QuestionType QuestionType { get; set; } // Enum (Text, Dropdown, etc.)
         public bool IsRequired { get; set; }
         public string? OptionsJson { get; set; } // Serialized list for Dropdown/Radio
 

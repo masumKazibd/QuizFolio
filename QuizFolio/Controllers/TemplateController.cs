@@ -57,9 +57,9 @@ namespace QuizFolio.Controllers
                 CreatorId = userId,
                 Questions = model.Questions.Select(q => new Question
                 {
-                    Text = q.Text,
-                    Type = q.Type,
-                    OptionsJson = q.Type == QuestionType.Dropdown || q.Type == QuestionType.Radio
+                    QuestionTitle = q.QuestionTitle,
+                    QuestionType = q.QuestionType,
+                    OptionsJson = q.QuestionType == QuestionType.Dropdown || q.QuestionType == QuestionType.Radio
                         ? JsonSerializer.Serialize(q.Options)
                         : null,
                     IsRequired = q.IsRequired
@@ -95,9 +95,9 @@ namespace QuizFolio.Controllers
                 IsPublic = template.IsPublic,
                 Questions = template.Questions.Select(q => new QuestionViewModel
                 {
-                    Text = q.Text,
-                    Type = q.Type,
-                    Options = q.Type == QuestionType.Dropdown || q.Type == QuestionType.Radio
+                    QuestionTitle = q.QuestionTitle,
+                    QuestionType = q.QuestionType,
+                    Options = q.QuestionType == QuestionType.Dropdown || q.QuestionType == QuestionType.Radio
                         ? JsonSerializer.Deserialize<List<string>>(q.OptionsJson)
                         : null,
                     IsRequired = q.IsRequired
@@ -134,9 +134,9 @@ namespace QuizFolio.Controllers
             // Add updated questions
             template.Questions = model.Questions.Select(q => new Question
             {
-                Text = q.Text,
-                Type = q.Type,
-                OptionsJson = q.Type == QuestionType.Dropdown || q.Type == QuestionType.Radio
+                QuestionTitle = q.QuestionTitle,
+                QuestionType = q.QuestionType,
+                OptionsJson = q.QuestionType == QuestionType.Dropdown || q.QuestionType == QuestionType.Radio
                     ? JsonSerializer.Serialize(q.Options)
                     : null,
                 IsRequired = q.IsRequired,

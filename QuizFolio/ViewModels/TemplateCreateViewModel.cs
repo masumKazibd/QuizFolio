@@ -5,6 +5,10 @@ namespace QuizFolio.ViewModels
 {
     public class TemplateCreateViewModel
     {
+        public TemplateCreateViewModel()
+        {
+            this.Questions = new List<QuestionViewModel>();
+        }
         [Required]
         public string Title { get; set; }
         public string Description { get; set; }
