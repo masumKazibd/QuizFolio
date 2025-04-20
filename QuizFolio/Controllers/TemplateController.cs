@@ -26,11 +26,10 @@ namespace QuizFolio.Controllers
         // GET: List all templates (public + user's private)
         public async Task<IActionResult> AllTemplate()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var templates = await _context.Templates
-                .Where(t => t.IsPublic || t.CreatorId == userId)
+            var templates = _context.Templates
+                .Include(t => t.Creator)
                 .Include(t => t.Questions)
-                .ToListAsync();
+                .ToList();
 
             return View(templates);
         }
@@ -45,31 +44,47 @@ namespace QuizFolio.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTemplate(TemplateCreateViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var template = new Template
             {
-                Title = model.Title,
-                Description = model.Description,
-                IsPublic = model.IsPublic,
-                CreatorId = userId,
-                Questions = model.Questions.Select(q => new Question
+                if (ModelState.IsValid)
                 {
-                    QuestionTitle = q.QuestionTitle,
-                    QuestionType = q.QuestionType,
-                    OptionsJson = q.QuestionType == QuestionType.Dropdown || q.QuestionType == QuestionType.Radio
-                        ? JsonSerializer.Serialize(q.Options)
-                        : null,
-                    IsRequired = q.IsRequired
-                }).ToList()
-            };
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var template = new Template
+                    {
+                        Title = model.Title,
+                        Description = model.Description,
+                        IsPublic = model.IsPublic,
+                        CreatorId = userId,
+                        Questions = new List<Question>()
+                    };
 
-            _context.Templates.Add(template);
-            await _context.SaveChangesAsync();
+                    // Transform ViewModel Questions to model Questions
+                    foreach (var questionViewModel in model.Questions)
+                    {
+                        var question = new Question
+                        {
+                            QuestionTitle = questionViewModel.QuestionTitle,
+                            QuestionType = questionViewModel.QuestionType,
+                            IsRequired = questionViewModel.IsRequired,
+                            //OptionsJson = string.IsNullOrWhiteSpace(questionViewModel.OptionsJson) ? null : questionViewModel.OptionsJson,
+                            // Assuming TemplateId will be set later on saving
+                        };
 
-            return RedirectToAction("AllTemplate");
+                        template.Questions.Add(question);
+                    }
+
+                    // Add the template to the context
+                    _context.Templates.Add(template);
+
+                    // Save changes to database
+                    _context.SaveChanges();
+
+                    // Redirect to a different action or view (like index)
+                    return RedirectToAction("AllTemplate");
+                }
+
+                // If we reached here, something failed; return to the view with model
+                return View(model);
+            }
         }
 
         // GET: Edit template (only creator/admin)

@@ -2,6 +2,9 @@
 *@
 @{
 }
+@using QuizFolio.Models;
+@model IEnumerable<QuizFolio.Models.Template>;
+
 
 <body class="bg-light">
 
@@ -14,17 +17,20 @@
             <div class="row row-cols-1 row-cols-md-3 g-4">
 
                 <!-- Card Item -->
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="~/images/account-bg.jpg" class="card-img-top" alt="Template Image">
-                        <div class="card-body">
-                            <h5 class="card-title">Template Title</h5>
-                            <p class="card-text">Short description about this template.</p>
-                            <a href="#" class="btn btn-primary">View Template</a>
+
+                @foreach(var Template in Model)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="~/images/account-bg.jpg" class="card-img-top" alt="Template Image">
+                            <div class="card-body">
+                                <h5 class="card-title">@Template.Title</h5>
+                                <p class="card-text">@Template.Description</p>
+                                <a href="#" class="btn btn-primary">View Template</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <!-- Repeat Card Items Dynamically -->
+                }
 
             </div>
 
