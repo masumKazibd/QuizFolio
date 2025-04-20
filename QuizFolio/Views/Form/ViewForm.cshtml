@@ -1,0 +1,55 @@
+﻿@model QuizFolio.Models.Template
+
+@{
+    ViewData["Title"] = Model.Title; // Set the page title based on the template title
+}
+
+<body class="bg-light">
+    <div class="container mt-4">
+        <div class="card">
+            <div  class="card-header">
+                <h1>@Model.Title</h1>
+            </div>
+            <div class="card-body">
+                <h5>@Model.Description</h5>
+                <h5>Created by: @Model.Creator.UserName</h5>
+            </div>
+        </div>
+
+        <h3>Questions</h3>
+        <div class="list-group">
+            @if (Model.Questions != null && Model.Questions.Any())
+            {
+                foreach (var question in Model.Questions)
+                {
+                    <div class="list-group-item">
+                        <h5>@question.QuestionTitle</h5>
+                        <p>Type: @question.QuestionType</p>
+                        <p>Required: @(question.IsRequired ? "Yes" : "No")</p>
+                       @*  @if (!string.IsNullOrEmpty(question.OptionsJson))
+                        {
+                            var options = JsonSerializer.Deserialize<List<string>>(question.OptionsJson);
+                            if (options != null && options.Any())
+                            {
+                                <h6>Options:</h6>
+                                <ul>
+                                    @foreach (var option in options) // List the options
+                                    {
+                                        <li>@option</li>
+                                    }
+                                </ul>
+                            }
+                        } *@
+                    </div>
+                    <br />
+                }
+            }
+            else
+            {
+                <p>No questions available for this template.</p>
+            }
+        </div>
+
+        <a asp-controller="Template" asp-action="AllTemplate" class="btn btn-secondary mt-4">Back to Templates</a> <!-- Button to go back -->
+    </div>
+</body>

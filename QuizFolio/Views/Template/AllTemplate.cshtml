@@ -24,7 +24,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">@Template.Title</h5>
                                 <p class="card-text">@Template.Description</p>
-                                <a href="#" class="btn btn-primary">View Template</a>
+                                <a asp-controller="Form" asp-action="ViewForm" asp-route-id="@Template.Id" class="btn btn-primary">View Template</a>
                             </div>
                         </div>
                     </div>
