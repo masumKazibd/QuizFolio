@@ -6,8 +6,9 @@ namespace QuizFolio.ViewModels
     {
 
         public int TemplateId { get; set; }
-        public string TemplateTitle { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
         public List<QuestionResponseViewModel> Questions { get; set; }
-        public bool EmailCopy { get; set; } // Optional feature
+        public bool EmailCopy { get; set; }
     }
 }

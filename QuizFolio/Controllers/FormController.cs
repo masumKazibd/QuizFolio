@@ -4,7 +4,7 @@ namespace QuizFolio.Controllers
 {
     public class FormController : Controller
     {
-        public IActionResult CreateForm()
+        public IActionResult ViewForm()
         {
             return View();
         }
