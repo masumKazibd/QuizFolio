@@ -1,7 +1,7 @@
 ﻿@model QuizFolio.Models.Template
 
 @{
-    ViewData["Title"] = Model.Title; // Set the page title based on the template title
+    ViewData["Title"] = Model.Title;
 }
 
 <body class="bg-light">
@@ -23,23 +23,70 @@
                 foreach (var question in Model.Questions)
                 {
                     <div class="list-group-item">
-                        <h5>@question.QuestionTitle</h5>
-                        <p>Type: @question.QuestionType</p>
-                        <p>Required: @(question.IsRequired ? "Yes" : "No")</p>
-                       @*  @if (!string.IsNullOrEmpty(question.OptionsJson))
+                        <h5>@question.QuestionTitle <span class="text-danger fw-bolder">@(question.IsRequired ? "*" : "")</span></h5>
+                        @switch (question.QuestionType)
                         {
-                            var options = JsonSerializer.Deserialize<List<string>>(question.OptionsJson);
-                            if (options != null && options.Any())
-                            {
-                                <h6>Options:</h6>
-                                <ul>
-                                    @foreach (var option in options) // List the options
+                            case QuizFolio.Models.QuestionType.Text:
+                                <input type="text" class="form-control" placeholder="Enter text" />
+                                break;
+                            case QuizFolio.Models.QuestionType.Checkbox:
+                                @if (!string.IsNullOrEmpty(question.OptionsJson))
+                                {
+                                    try
                                     {
-                                        <li>@option</li>
+                                        var options = System.Text.Json.JsonSerializer.Deserialize<List<string>>(question.OptionsJson);
+                                        if (options != null && options.Any())
+                                        {
+                                            foreach (var option in options)
+                                            {
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="@option" value="@option">
+                                                    <label class="form-check-label" for="@option">@option</label>
+                                                </div>
+                                            }
+                                        }
                                     }
-                                </ul>
+                                    catch (System.Text.Json.JsonException ex)
+                                    {
+                                        <div class="alert alert-danger">Error parsing options: @ex.Message</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning">No options found for this question.</div>
+                                }
+                                break;
+                            case QuizFolio.Models.QuestionType.Dropdown:
+                                @if (!string.IsNullOrEmpty(question.OptionsJson))
+                                {
+                                    try
+                                    {
+                                        var options = System.Text.Json.JsonSerializer.Deserialize<List<string>>(question.OptionsJson);
+                                        if (options != null && options.Any())
+                                        {
+                                            <select class="form-select">
+                                                @foreach (var option in options)
+                                                {
+                                                    <option value="@option">@option</option>
+                                                }
+                                            </select>
+                                        }
+                                    }
+                                    catch (System.Text.Json.JsonException ex)
+                                    {
+                                        <div class="alert alert-danger">Error parsing options: @ex.Message</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning">No options found for this question.</div>
+                                }
+                                break;
+                            // Add other cases for your enum values
+                            default:
+                                <div class="alert alert-warning">Question type not handled: @question.QuestionType</div>
+                                break;
                             }
-                        } *@
                     </div>
                     <br />
                 }
@@ -49,7 +96,10 @@
                 <p>No questions available for this template.</p>
             }
         </div>
-
-        <a asp-controller="Template" asp-action="AllTemplate" class="btn btn-secondary mt-4">Back to Templates</a> <!-- Button to go back -->
+        <div class="row">
+            <button asp-controller="Template" asp-action="AllTemplate" type="button" id="" class="col-2 btn-sm btn-primary">Back to Templates</button>
+            <div class="form-group col-10">
+                <button type="submit" class="btn-sm btn-success">Submit Response</button>
+            </div>
     </div>
 </body>

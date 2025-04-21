@@ -7,6 +7,6 @@ namespace QuizFolio.ViewModels
         public QuestionType QuestionType { get; set; }
         public string QuestionTitle { get; set; }
         public bool IsRequired { get; set; }
-        public List<string>? Options { get; set; } // For Dropdown/Radio
+        public List<string>? Options { get; set; }
     }
 }
