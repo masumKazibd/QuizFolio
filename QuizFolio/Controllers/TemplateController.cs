@@ -71,19 +71,16 @@ namespace QuizFolio.Controllers
 
                         template.Questions.Add(question);
                     }
-
-                    // Add the template to the context
                     _context.Templates.Add(template);
-
-                    // Save changes to database
                     _context.SaveChanges();
-
-                    // Redirect to a different action or view (like index)
+                    TempData["Message"] = "Template created successfully.";
                     return RedirectToAction("AllTemplate");
                 }
-
-                // If we reached here, something failed; return to the view with model
-                return View(model);
+                else
+                {
+                    TempData["Message"] = "Invalid form";
+                    return View(model);
+                }
             }
         }
 

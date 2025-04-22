@@ -7,6 +7,13 @@
 @{
     ViewData["Title"] = "Create New Template";
 }
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 <form asp-action="CreateTemplate" method="post">
     <div class="card-header">
         <h5 class="card-title">Template Details</h5>
@@ -34,15 +41,16 @@
         {
             <div class="question-group card-header">
                 <div class="row">
-                    <div class="col-10">
-                        <h5 class="card-title">Question @i</h5>
+                    <div class="col-8">
+                        <h5 class="card-title">Question 1</h5>
                     </div>
-                    <div class="col-2">
-                        <label asp-for="Questions[i].QuestionType"></label>
-                        <select asp-for="Questions[i].QuestionType" class="form-control" asp-items="Html.GetEnumSelectList<QuestionType>()">
-                            <option value="">Select Question Type</option>
-                        </select>
-                        <span asp-validation-for="Questions[i].QuestionType" class="text-danger"></span>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <select asp-for="Questions[i].QuestionType" class="form-select" asp-items="Html.GetEnumSelectList<QuestionType>()">
+                                <option value="">Select Question Type</option>
+                            </select>
+                            <label for="Questions[i].QuestionType">Question Type</label>
+                        </div>
                     </div>
                 </div>
 
@@ -80,31 +88,33 @@
         <div class="form-group col-10">
             <button type="submit" class="btn-sm btn-success">Create Template</button>
         </div>
-
+    </div>
 </form>
 
 
 @section Scripts {
     <script>
-                $(document).ready(function () {
-                    var questionIndex = @Model.Questions.Count;
-
-                    $('#add-question').click(function () {
-                                var questionHtml = `<div class="question-group card-header">
+        $(document).ready(function () {
+            var questionIndex = @Model.Questions.Count;
+            $('#add-question').click(function () {
+                var questionHtml =
+                `<div class="question-group card-header">
                     <div class="row">
-                        <div class="col-10">
-                            <h5 class="card-title">Question ${questionIndex}</h5>
+                        <div class="col-8">
+                            <h5 class="card-title">Question ${questionIndex + 1}</h5>
                         </div>
-                        <div class="col-2">
-                        <label for="Questions_${questionIndex}__QuestionType">Question Type</label>
-        <select name="Questions[${questionIndex}].QuestionType" class="form-control">
-            <option value="">Select Question Type</option>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <select name="Questions[${questionIndex}].QuestionType" class="form-select">
+                                   <option value="">Select Question Type</option>
         @foreach (var type in Enum.GetValues(typeof(QuizFolio.Models.QuestionType)).Cast<QuizFolio.Models.QuestionType>())
         {
-                                    <option value="@type">@type</option>
+                                            <option value="@type">@type</option>
         }
-        </select>
-
+                                </select>
+                                <label for="Questions[${questionIndex}].QuestionType">Question Type</label>
+                            </div>
                         </div>
                     </div>
 
@@ -121,34 +131,32 @@
                             <label asp-for="Description" class="form-label"></label>
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
-
                     </div>
+
                     <div class="card-footer row">
                         <div class="form-group col-10">
                             <label asp-for="Questions_${questionIndex}__IsRequired">IsRequired</label>
-                            <input asp-for="Questions_${questionIndex}__IsRequired" type="checkbox" />
+                            <input asp-for="Questions_${questionIndex}__IsRequired" type="checkbox"/>
                         </div>
                         <button type="button" class="btn-sm col-2 btn-danger remove-question">Remove Question</button>
                     </div>
-                </div>
-        `;
-                        $('#questions-container').append(questionHtml);
-                        questionIndex++;
-                    });
+                </div>`;
+                $('#questions-container').append(questionHtml);
+                questionIndex++;
+            });
 
-                    $(document).on('change', 'select[name*="QuestionType"]', function () {
-                        var selectedType = $(this).val();
-                        var answerOptionsDiv = $(this).closest('.question-group').find('.answer-options');
-                        if (selectedType === 'Dropdown' || selectedType === 'Radio' || selectedType === 'Checkbox') {
-                            answerOptionsDiv.show();
-                        } else {
-                            answerOptionsDiv.hide();
-                        }
-                    });
-
-                    $(document).on('click', '.remove-question', function () {
-                        $(this).closest('.question-group').remove();
-                    });
-                });
+            // $(document).on('change', 'select[name*="QuestionType"]', function () {
+            //     var selectedType = $(this).val();
+            //     var answerOptionsDiv = $(this).closest('.question-group').find('.answer-options');
+            //     if (selectedType === 'Dropdown' || selectedType === 'Radio' || selectedType === 'Checkbox') {
+            //         answerOptionsDiv.show();
+            //     } else {
+            //         answerOptionsDiv.hide();
+            //     }
+            // });
+            $(document).on('click', '.remove-question', function () {
+                $(this).closest('.question-group').remove();
+            });
+        });
     </script>
 }

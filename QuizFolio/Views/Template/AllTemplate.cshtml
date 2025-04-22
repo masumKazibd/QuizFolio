@@ -2,7 +2,13 @@
 }
 @using QuizFolio.Models;
 @model IEnumerable<QuizFolio.Models.Template>;
-
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <body class="bg-light">
 
