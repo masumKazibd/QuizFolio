@@ -62,16 +62,10 @@
                         <span asp-validation-for="Questions[i].QuestionTitle" class="text-danger"></span>
                     </div>
 
-                    @if (Model.Questions[i].QuestionType != QuestionType.Text)
-                    {
-                        <div class="mb-3 form-floating">
-                            <input text asp-for="Questions[i].Options" class="form-control" />
-                            <label asp-for="Questions[i].Options" class="form-label"></label>
-                            <span asp-validation-for="Questions[i].Options" class="text-danger"></span>
-                        </div>
-                    }
-
+                    <div class="options-container" data-index="${questionIndex}"></div>
+                    <button type="button" class="btn btn-sm btn-secondary add-option" data-index="${questionIndex}">Add Option</button>
                 </div>
+
                 <div class="card-footer row">
                     <div class="form-group col-10">
                         <label asp-for="Questions[i].IsRequired"></label>
@@ -96,7 +90,12 @@
     <script>
         $(document).ready(function () {
             var questionIndex = @Model.Questions.Count;
+            // var questionIndex = 0;
+            var optionCounters = {};
+            //for adding multiple questions
             $('#add-question').click(function () {
+                        console.log("Adding Question Index:", questionIndex); // Debugging
+
                 var questionHtml =
                 `<div class="question-group card-header">
                     <div class="row">
@@ -110,7 +109,7 @@
                                    <option value="">Select Question Type</option>
         @foreach (var type in Enum.GetValues(typeof(QuizFolio.Models.QuestionType)).Cast<QuizFolio.Models.QuestionType>())
         {
-                                            <option value="@type">@type</option>
+                                                                    <option value="@type">@type</option>
         }
                                 </select>
                                 <label for="Questions[${questionIndex}].QuestionType">Question Type</label>
@@ -125,11 +124,8 @@
                             <label for="Questions[${questionIndex}].QuestionTitle">Question Title</label>
                             <span asp-validation-for="Questions_${questionIndex}__QuestionTitle" class="text-danger"></span>
                         </div>
-
-                        <div class="mb-3 form-floating">
-                            <input name="Questions[${questionIndex}].Options" class="form-control" />
-                            <label for="Questions[${questionIndex}].Options">Options</label>
-                        </div>
+                        <div class="options-container" data-index="${questionIndex}"></div>
+                        <button type="button" class="btn btn-sm btn-secondary add-option" data-index="${questionIndex}">Add Option</button>
                     </div>
 
                     <div class="card-footer row">
@@ -143,19 +139,30 @@
                 $('#questions-container').append(questionHtml);
                 questionIndex++;
             });
-
-            // $(document).on('change', 'select[name*="QuestionType"]', function () {
-            //     var selectedType = $(this).val();
-            //     var answerOptionsDiv = $(this).closest('.question-group').find('.answer-options');
-            //     if (selectedType === 'Dropdown' || selectedType === 'Radio' || selectedType === 'Checkbox') {
-            //         answerOptionsDiv.show();
-            //     } else {
-            //         answerOptionsDiv.hide();
-            //     }
-            // });
+            //For Remove question
             $(document).on('click', '.remove-question', function () {
                 $(this).closest('.question-group').remove();
             });
+
+
+            // //For multiple options
+
+            $(document).on('click', '.add-option', function () {
+                var qIndex = $(this).data('index');
+                    console.log("Current question index (qIndex):", qIndex);
+
+                if (optionCounters[qIndex] === undefined) optionCounters[qIndex] = 0;
+
+                var optionHtml = `
+                    <div class="mb-3 form-floating">
+                        <input name="Questions[${qIndex}].Options[${optionCounters[qIndex]}].Option" class="form-control" />
+                        <label for="Questions[${qIndex}].Options[${optionCounters[qIndex]}].Option">Option ${optionCounters[qIndex] + 1}</label>
+                    </div>`;
+                // Append to the correct options container
+                $(this).siblings('.options-container').append(optionHtml);
+                optionCounters[qIndex]++;
+            });
+
         });
     </script>
 }

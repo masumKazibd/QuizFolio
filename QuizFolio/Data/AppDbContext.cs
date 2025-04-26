@@ -15,6 +15,7 @@ namespace QuizFolio.Data
         public DbSet<Question> Questions { get; set; }
         public DbSet<Form> Forms { get; set; }
         public DbSet<Answer> Answers { get; set; }
+        public DbSet<QuestionOption> QuestionOptions { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -22,9 +23,9 @@ namespace QuizFolio.Data
             // Configure relationships
             builder.Entity<Template>(entity =>
             {
-                entity.HasOne(t => t.Creator)  
-                      .WithMany(u => u.Templates) 
-                      .HasForeignKey(t => t.CreatorId) 
+                entity.HasOne(t => t.Creator)
+                      .WithMany(u => u.Templates)
+                      .HasForeignKey(t => t.CreatorId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -61,6 +62,16 @@ namespace QuizFolio.Data
                       .HasForeignKey(a => a.QuestionId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
+            builder.Entity<QuestionOption>(entity =>
+            {
+                entity.HasOne(qo => qo.Question)
+                      .WithMany(q => q.Options)
+                      .HasForeignKey(qo => qo.QuestionId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+
         }
     }
 }

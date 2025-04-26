@@ -4,9 +4,9 @@
     {
         public int Id { get; set; }
         public string QuestionTitle { get; set; }
-        public QuestionType QuestionType { get; set; } // Enum (Text, Dropdown, etc.)
+        public QuestionType QuestionType { get; set; }
         public bool IsRequired { get; set; }
-        public string? OptionsJson { get; set; } // Serialized list for Dropdown/Radio
+        public ICollection<QuestionOption> Options { get; set; }
 
         // Foreign key
         public int TemplateId { get; set; }

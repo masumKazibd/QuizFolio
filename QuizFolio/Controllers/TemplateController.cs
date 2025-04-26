@@ -65,9 +65,21 @@ namespace QuizFolio.Controllers
                             QuestionTitle = questionViewModel.QuestionTitle,
                             QuestionType = questionViewModel.QuestionType,
                             IsRequired = questionViewModel.IsRequired,
-                            //OptionsJson = string.IsNullOrWhiteSpace(questionViewModel.OptionsJson) ? null : questionViewModel.OptionsJson,
-                            // Assuming TemplateId will be set later on saving
+                            Options = new List<QuestionOption>()
+
                         };
+                        // Map options if there are any
+                        if (questionViewModel.Options != null && questionViewModel.Options.Any())
+                        {
+                            foreach (var optionViewModel in questionViewModel.Options)
+                            {
+                                var option = new QuestionOption
+                                {
+                                    Option = optionViewModel.Option
+                                };
+                                question.Options.Add(option);
+                            }
+                        }
 
                         template.Questions.Add(question);
                     }
@@ -84,80 +96,80 @@ namespace QuizFolio.Controllers
             }
         }
 
-        // GET: Edit template (only creator/admin)
-        public async Task<IActionResult> EditTemplate(int id)
-        {
-            var template = await _context.Templates
-                .Include(t => t.Questions)
-                .FirstOrDefaultAsync(t => t.Id == id);
+        //// GET: Edit template (only creator/admin)
+        //public async Task<IActionResult> EditTemplate(int id)
+        //{
+        //    var template = await _context.Templates
+        //        .Include(t => t.Questions)
+        //        .FirstOrDefaultAsync(t => t.Id == id);
 
-            if (template == null)
-                return NotFound();
+        //    if (template == null)
+        //        return NotFound();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var isAdmin = User.IsInRole("Admin");
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var isAdmin = User.IsInRole("Admin");
 
-            if (template.CreatorId != userId && !isAdmin)
-                return Forbid();
+        //    if (template.CreatorId != userId && !isAdmin)
+        //        return Forbid();
 
-            var model = new TemplateCreateViewModel
-            {
-                Title = template.Title,
-                Description = template.Description,
-                IsPublic = template.IsPublic,
-                Questions = template.Questions.Select(q => new QuestionViewModel
-                {
-                    QuestionTitle = q.QuestionTitle,
-                    QuestionType = q.QuestionType,
-                    Options = q.QuestionType == QuestionType.Dropdown || q.QuestionType == QuestionType.Radio
-                        ? JsonSerializer.Deserialize<List<string>>(q.OptionsJson)
-                        : null,
-                    IsRequired = q.IsRequired
-                }).ToList()
-            };
+        //    var model = new TemplateCreateViewModel
+        //    {
+        //        Title = template.Title,
+        //        Description = template.Description,
+        //        IsPublic = template.IsPublic,
+        //        Questions = template.Questions.Select(q => new QuestionViewModel
+        //        {
+        //            QuestionTitle = q.QuestionTitle,
+        //            QuestionType = q.QuestionType,
+        //            Options = q.QuestionType == QuestionType.Dropdown || q.QuestionType == QuestionType.Radio
+        //                ? JsonSerializer.Deserialize<List<string>>(q.OptionsJson)
+        //                : null,
+        //            IsRequired = q.IsRequired
+        //        }).ToList()
+        //    };
 
-            return View(model);
-        }
+        //    return View(model);
+        //}
 
         // POST: Update template
-        [HttpPost]
-        public async Task<IActionResult> EditTemplate(int id, TemplateCreateViewModel model)
-        {
-            var template = await _context.Templates
-                .Include(t => t.Questions)
-                .FirstOrDefaultAsync(t => t.Id == id);
+        //[HttpPost]
+        //public async Task<IActionResult> EditTemplate(int id, TemplateCreateViewModel model)
+        //{
+        //    var template = await _context.Templates
+        //        .Include(t => t.Questions)
+        //        .FirstOrDefaultAsync(t => t.Id == id);
 
-            if (template == null)
-                return NotFound();
+        //    if (template == null)
+        //        return NotFound();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var isAdmin = User.IsInRole("Admin");
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var isAdmin = User.IsInRole("Admin");
 
-            if (template.CreatorId != userId && !isAdmin)
-                return Forbid();
+        //    if (template.CreatorId != userId && !isAdmin)
+        //        return Forbid();
 
-            template.Title = model.Title;
-            template.Description = model.Description;
-            template.IsPublic = model.IsPublic;
+        //    template.Title = model.Title;
+        //    template.Description = model.Description;
+        //    template.IsPublic = model.IsPublic;
 
-            // Clear existing questions
-            _context.Questions.RemoveRange(template.Questions);
+        //    // Clear existing questions
+        //    _context.Questions.RemoveRange(template.Questions);
 
-            // Add updated questions
-            template.Questions = model.Questions.Select(q => new Question
-            {
-                QuestionTitle = q.QuestionTitle,
-                QuestionType = q.QuestionType,
-                OptionsJson = q.QuestionType == QuestionType.Dropdown || q.QuestionType == QuestionType.Radio
-                    ? JsonSerializer.Serialize(q.Options)
-                    : null,
-                IsRequired = q.IsRequired,
-                TemplateId = template.Id
-            }).ToList();
+        //    // Add updated questions
+        //    template.Questions = model.Questions.Select(q => new Question
+        //    {
+        //        QuestionTitle = q.QuestionTitle,
+        //        QuestionType = q.QuestionType,
+        //        OptionsJson = q.QuestionType == QuestionType.Dropdown || q.QuestionType == QuestionType.Radio
+        //            ? JsonSerializer.Serialize(q.Options)
+        //            : null,
+        //        IsRequired = q.IsRequired,
+        //        TemplateId = template.Id
+        //    }).ToList();
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction("AllTemplate");
-        }
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction("AllTemplate");
+        //}
 
         // POST: Delete template
         [HttpPost]
