@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuizFolio.Data;
 
@@ -11,9 +12,11 @@ using QuizFolio.Data;
 namespace QuizFolio.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250426043521_update model for question options")]
+    partial class updatemodelforquestionoptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -236,7 +239,7 @@ namespace QuizFolio.Migrations
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("QuizFolio.Models.QuestionOption", b =>
+            modelBuilder.Entity("QuizFolio.Models.QuestionOptions", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -472,7 +475,7 @@ namespace QuizFolio.Migrations
                     b.Navigation("Template");
                 });
 
-            modelBuilder.Entity("QuizFolio.Models.QuestionOption", b =>
+            modelBuilder.Entity("QuizFolio.Models.QuestionOptions", b =>
                 {
                     b.HasOne("QuizFolio.Models.Question", "Question")
                         .WithMany("Options")

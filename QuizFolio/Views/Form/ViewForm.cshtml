@@ -7,7 +7,7 @@
 <body class="bg-light">
     <div class="container mt-4">
         <div class="card">
-            <div  class="card-header">
+            <div class="card-header">
                 <h1>@Model.Title</h1>
             </div>
             <div class="card-body">
@@ -15,7 +15,6 @@
                 <h5>Created by: @Model.Creator.UserName</h5>
             </div>
         </div>
-
         <h3>Questions</h3>
         <div class="list-group">
             @if (Model.Questions != null && Model.Questions.Any())
@@ -29,77 +28,54 @@
                             case QuizFolio.Models.QuestionType.Text:
                                 <input type="text" class="form-control" placeholder="Enter text" />
                                 break;
-                            case QuizFolio.Models.QuestionType.Checkbox:
-                                @if (!string.IsNullOrEmpty(question.OptionsJson))
-                                {
-                                    try
-                                    {
-                                        var options = System.Text.Json.JsonSerializer.Deserialize<List<string>>(question.OptionsJson);
-                                        if (options != null && options.Any())
-                                        {
-                                            foreach (var option in options)
-                                            {
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="@option" value="@option">
-                                                    <label class="form-check-label" for="@option">@option</label>
-                                                </div>
-                                            }
-                                        }
-                                    }
-                                    catch (System.Text.Json.JsonException ex)
-                                    {
-                                        <div class="alert alert-danger">Error parsing options: @ex.Message</div>
-                                    }
-                                }
-                                else
-                                {
-                                    <div class="alert alert-warning">No options found for this question.</div>
-                                }
-                                break;
                             case QuizFolio.Models.QuestionType.Dropdown:
-                                @if (!string.IsNullOrEmpty(question.OptionsJson))
-                                {
-                                    try
+                                <select class="form-select" name="@question.Id">
+                                    <option value="">Select an option</option> <!-- Optional placeholder -->
+                                    @foreach (var option in question.Options)
                                     {
-                                        var options = System.Text.Json.JsonSerializer.Deserialize<List<string>>(question.OptionsJson);
-                                        if (options != null && options.Any())
-                                        {
-                                            <select class="form-select">
-                                                @foreach (var option in options)
-                                                {
-                                                    <option value="@option">@option</option>
-                                                }
-                                            </select>
-                                        }
+                                        <option value="@option.Option">@option.Option</option>
                                     }
-                                    catch (System.Text.Json.JsonException ex)
-                                    {
-                                        <div class="alert alert-danger">Error parsing options: @ex.Message</div>
-                                    }
-                                }
-                                else
+                                </select>
+                                break;
+                            case QuizFolio.Models.QuestionType.Radio:
+                                @foreach (var option in question.Options)
                                 {
-                                    <div class="alert alert-warning">No options found for this question.</div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="@question.Id" value="@option.Option">
+                                        <label class="form-check-label">@option.Option</label>
+                                    </div>
                                 }
                                 break;
-                            // Add other cases for your enum values
+                            case QuizFolio.Models.QuestionType.Checkbox:
+                                @foreach (var option in question.Options)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="@question.Id" value="@option.Option">
+                                        <label class="form-check-label">@option.Option</label>
+                                    </div>
+                                }
+                                break;
+                            case QuizFolio.Models.QuestionType.Email:
+                                <input type="text" class="form-control" placeholder="Enter email address" />
+                                break;
+
                             default:
-                                <div class="alert alert-warning">Question type not handled: @question.QuestionType</div>
+                                <p>Question type not supported.</p>
                                 break;
-                            }
+                        }
                     </div>
-                    <br />
                 }
             }
             else
             {
-                <p>No questions available for this template.</p>
+                <p>No questions available.</p>
             }
         </div>
+
         <div class="row">
             <a asp-controller="Template" asp-action="AllTemplate" class="col-2 btn-sm btn-primary">Back to Templates</a>
             <div class="form-group col-10">
                 <button type="submit" class="btn-sm btn-success">Submit Response</button>
             </div>
-    </div>
+        </div>
 </body>
