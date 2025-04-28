@@ -68,7 +68,7 @@
 
                 <div class="card-footer row">
                     <div class="form-group col-10">
-                        <label asp-for="Questions[i].IsRequired"></label>
+                        <label asp-for="Questions[i].IsRequired">Required</label>
                         <input asp-for="Questions[i].IsRequired" type="checkbox" />
                     </div>
                     <button type="button" class="btn-sm col-2 btn-danger remove-question">Remove Question</button>
@@ -122,7 +122,7 @@
                         <div class="mb-3 form-floating">
                             <input name="Questions[${questionIndex}].QuestionTitle" class="form-control" />
                             <label for="Questions[${questionIndex}].QuestionTitle">Question Title</label>
-                            <span asp-validation-for="Questions_${questionIndex}__QuestionTitle" class="text-danger"></span>
+                            <span asp-validation-for="Questions[${questionIndex}].QuestionTitle" class="text-danger"></span>
                         </div>
                         <div class="options-container" data-index="${questionIndex}"></div>
                         <button type="button" class="btn btn-sm btn-secondary add-option" data-index="${questionIndex}">Add Option</button>
@@ -130,8 +130,8 @@
 
                     <div class="card-footer row">
                         <div class="form-group col-10">
-                            <label asp-for="Questions_${questionIndex}__IsRequired">IsRequired</label>
-                            <input asp-for="Questions_${questionIndex}__IsRequired" type="checkbox"/>
+                            <label for="Questions[${questionIndex}].IsRequired">Required</label>
+                            <input type="checkbox" name="Questions[${questionIndex}].IsRequired" value="true"/>
                         </div>
                         <button type="button" class="btn-sm col-2 btn-danger remove-question">Remove Question</button>
                     </div>
