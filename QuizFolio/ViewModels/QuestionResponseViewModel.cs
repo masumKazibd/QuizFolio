@@ -8,8 +8,6 @@ namespace QuizFolio.ViewModels
         public string Text { get; set; }
         public QuestionType Type { get; set; }
         public bool IsRequired { get; set; }
-        public List<string>? Options { get; set; }
-        public string? Answer { get; set; } // for single response
-
+        public List<string>? Options { get; set; } 
     }
 }

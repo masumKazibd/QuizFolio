@@ -39,32 +39,25 @@ namespace QuizFolio.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            List<FormResponse> responses = new List<FormResponse>();
-
-            foreach (var answer in Answers)
+            var answersToSave = Answers.Select(a => new
             {
-                var response = new FormResponse
-                {
-                    TemplateId = TemplateId,
-                    RespondentId = userId,
-                    QuestionId = answer.QuestionId,
-                    AnswerText = answer.Answer,
-                    AnswerOptionsJson = (answer.Options != null && answer.Options.Any())
-                        ? System.Text.Json.JsonSerializer.Serialize(answer.Options)
-                        : null,
-                    SubmittedAt = DateTime.UtcNow
-                };
+                QuestionId = a.QuestionId,
+                Options = a.Options
+            }).ToList();
 
-                responses.Add(response);
-            }
+            var formResponse = new FormResponse
+            {
+                TemplateId = TemplateId,
+                RespondentId = userId,
+                AnswersJson = System.Text.Json.JsonSerializer.Serialize(answersToSave),
+                SubmittedAt = DateTime.UtcNow
+            };
 
-            _context.FormResponses.AddRange(responses);
+            _context.FormResponses.Add(formResponse);
             await _context.SaveChangesAsync();
 
-            TempData["Message"] = "Form submited successfully.";
+            TempData["Message"] = "Form submitted successfully.";
             return RedirectToAction("AllTemplate", "Template");
-
         }
-
     }
 }
