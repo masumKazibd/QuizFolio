@@ -21,7 +21,6 @@ namespace QuizFolio.Controllers
             this.userManager = userManager;
             _context = context;
         }
-        [Authorize]
         public async Task<IActionResult> ViewForm(int id)
         {
             var template = await _context.Templates
@@ -34,6 +33,8 @@ namespace QuizFolio.Controllers
                 return NotFound();
             return View(template);
         }
+
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> SubmitForm(int TemplateId, List<QuestionResponseViewModel> Answers)
         {
