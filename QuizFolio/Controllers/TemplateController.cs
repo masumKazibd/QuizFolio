@@ -22,7 +22,7 @@ namespace QuizFolio.Controllers
             this.userManager = userManager;
             _context = context;
         }
-        [Authorize]
+        //[Authorize]
         // GET: List all templates (public + user's private)
         public async Task<IActionResult> AllTemplate()
         {
@@ -35,13 +35,13 @@ namespace QuizFolio.Controllers
             return View(templates);
         }
 
-        // GET: Create template form
+        [Authorize]
         public IActionResult CreateTemplate()
         {
             return View(new TemplateCreateViewModel { Questions = new List<QuestionViewModel> { new QuestionViewModel() } });
         }
 
-        // POST: Save new template
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateTemplate(TemplateCreateViewModel model)
         {
