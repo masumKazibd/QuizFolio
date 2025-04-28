@@ -12,15 +12,12 @@
 
 <body class="bg-light">
 
-    <!-- Main Content -->
     <div class="container mt-4">
         <div class="row">
             <a asp-controller="Template" asp-action="CreateTemplate">Create New Template</a>
-            <!-- Latest Templates Gallery -->
             <h3>Latest Templates</h3>
             <div class="row row-cols-1 row-cols-md-3 g-4">
 
-                <!-- Card Item -->
 
                 @foreach(var Template in Model)
                 {
@@ -50,12 +47,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Quiz for Interview</td>
-                        <td>John Doe</td>
-                        <td>120</td>
-                        <td><a href="#" class="btn btn-sm btn-outline-primary">View</a></td>
-                    </tr>
+                    @foreach (var template in Model
+                    .OrderByDescending(t => t.FormResponses != null ? t.FormResponses.Count : 0)
+                    .Take(5))
+                    {
+                        <tr>
+                            <td>@template.Title</td>
+                            <td>@template.Creator?.UserName</td>
+                            <td>@(template.FormResponses?.Count ?? 0)</td>
+                            <td>
+                                <a asp-controller="Form" asp-action="ViewForm" asp-route-id="@template.Id" class="btn btn-sm btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
 

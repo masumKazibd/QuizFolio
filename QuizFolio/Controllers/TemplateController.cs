@@ -29,6 +29,7 @@ namespace QuizFolio.Controllers
             var templates = _context.Templates
                 .Include(t => t.Creator)
                 .Include(t => t.Questions)
+                .Include(t => t.FormResponses)
                 .ToList();
 
             return View(templates);
