@@ -155,7 +155,7 @@ namespace QuizFolio.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("QuizFolio.Models.Answer", b =>
+            modelBuilder.Entity("QuizFolio.Models.FormResponse", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -163,32 +163,14 @@ namespace QuizFolio.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("FormId")
-                        .HasColumnType("int");
+                    b.Property<string>("AnswerOptionsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AnswerText")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("QuestionId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FormId");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("Answers");
-                });
-
-            modelBuilder.Entity("QuizFolio.Models.Form", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("RespondentId")
                         .HasColumnType("nvarchar(450)");
@@ -205,7 +187,7 @@ namespace QuizFolio.Migrations
 
                     b.HasIndex("TemplateId");
 
-                    b.ToTable("Forms");
+                    b.ToTable("FormResponses");
                 });
 
             modelBuilder.Entity("QuizFolio.Models.Question", b =>
@@ -424,36 +406,16 @@ namespace QuizFolio.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("QuizFolio.Models.Answer", b =>
-                {
-                    b.HasOne("QuizFolio.Models.Form", "Form")
-                        .WithMany("Answers")
-                        .HasForeignKey("FormId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QuizFolio.Models.Question", "Question")
-                        .WithMany()
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Form");
-
-                    b.Navigation("Question");
-                });
-
-            modelBuilder.Entity("QuizFolio.Models.Form", b =>
+            modelBuilder.Entity("QuizFolio.Models.FormResponse", b =>
                 {
                     b.HasOne("QuizFolio.Models.Users", "Respondent")
-                        .WithMany("Forms")
-                        .HasForeignKey("RespondentId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .WithMany("FormResponses")
+                        .HasForeignKey("RespondentId");
 
                     b.HasOne("QuizFolio.Models.Template", "Template")
-                        .WithMany("Forms")
+                        .WithMany("FormResponses")
                         .HasForeignKey("TemplateId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Respondent");
@@ -494,11 +456,6 @@ namespace QuizFolio.Migrations
                     b.Navigation("Creator");
                 });
 
-            modelBuilder.Entity("QuizFolio.Models.Form", b =>
-                {
-                    b.Navigation("Answers");
-                });
-
             modelBuilder.Entity("QuizFolio.Models.Question", b =>
                 {
                     b.Navigation("Options");
@@ -506,14 +463,14 @@ namespace QuizFolio.Migrations
 
             modelBuilder.Entity("QuizFolio.Models.Template", b =>
                 {
-                    b.Navigation("Forms");
+                    b.Navigation("FormResponses");
 
                     b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("QuizFolio.Models.Users", b =>
                 {
-                    b.Navigation("Forms");
+                    b.Navigation("FormResponses");
 
                     b.Navigation("Templates");
                 });

@@ -3,7 +3,13 @@
 @{
     ViewData["Title"] = Model.Title;
 }
-
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 <body class="bg-light">
     <div class="container mt-4">
         <div class="card">
@@ -15,67 +21,80 @@
                 <h5>Created by: @Model.Creator.UserName</h5>
             </div>
         </div>
+
         <h3>Questions</h3>
-        <div class="list-group">
-            @if (Model.Questions != null && Model.Questions.Any())
-            {
-                foreach (var question in Model.Questions)
+
+        <form asp-action="SubmitForm" asp-controller="Form" method="post">
+            <input type="hidden" name="TemplateId" value="@Model.Id" />
+            <div class="list-group">
+                @if (Model.Questions != null && Model.Questions.Any())
                 {
-                    <div class="list-group-item">
-                        <h5>@question.QuestionTitle <span class="text-danger fw-bolder">@(question.IsRequired ? "*" : "")</span></h5>
-                        @switch (question.QuestionType)
-                        {
-                            case QuizFolio.Models.QuestionType.Text:
-                                <input type="text" class="form-control" placeholder="Enter text" />
-                                break;
-                            case QuizFolio.Models.QuestionType.Dropdown:
-                                <select class="form-select" name="@question.Id">
-                                    <option value="">Select an option</option> <!-- Optional placeholder -->
+                    int index = 0;
+                    foreach (var question in Model.Questions)
+                    {
+                        <div class="list-group-item">
+                            <input type="hidden" name="Answers[@index].QuestionId" value="@question.Id" />
+                            <input type="hidden" name="Answers[@index].Type" value="@((int)question.QuestionType)" />
+                            <input type="hidden" name="Answers[@index].IsRequired" value="@question.IsRequired" />
+
+                            <h5>@question.QuestionTitle <span class="text-danger fw-bolder">@(question.IsRequired ? "*" : "")</span></h5>
+
+                            @switch (question.QuestionType)
+                            {
+                                case QuizFolio.Models.QuestionType.Text:
+                                    <input type="text" class="form-control" name="Answers[@index].Options" placeholder="Enter text" />
+                                    break;
+                                case QuizFolio.Models.QuestionType.Dropdown:
+                                    <select class="form-select" name="Answers[@index].Options">
+                                        <option value="">Select an option</option>
+                                        @foreach (var option in question.Options)
+                                        {
+                                            <option value="@option.Option">@option.Option</option>
+                                        }
+                                    </select>
+                                    break;
+                                case QuizFolio.Models.QuestionType.Radio:
                                     @foreach (var option in question.Options)
                                     {
-                                        <option value="@option.Option">@option.Option</option>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="Answers[@index].Options" value="@option.Option">
+                                            <label class="form-check-label">@option.Option</label>
+                                        </div>
                                     }
-                                </select>
-                                break;
-                            case QuizFolio.Models.QuestionType.Radio:
-                                @foreach (var option in question.Options)
-                                {
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="@question.Id" value="@option.Option">
-                                        <label class="form-check-label">@option.Option</label>
-                                    </div>
-                                }
-                                break;
-                            case QuizFolio.Models.QuestionType.Checkbox:
-                                @foreach (var option in question.Options)
-                                {
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="@question.Id" value="@option.Option">
-                                        <label class="form-check-label">@option.Option</label>
-                                    </div>
-                                }
-                                break;
-                            case QuizFolio.Models.QuestionType.Email:
-                                <input type="text" class="form-control" placeholder="Enter email address" />
-                                break;
+                                    break;
+                                case QuizFolio.Models.QuestionType.Checkbox:
+                                    @foreach (var option in question.Options)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="Answers[@index].Options" value="@option.Option">
+                                            <label class="form-check-label">@option.Option</label>
+                                        </div>
+                                    }
+                                    break;
+                                case QuizFolio.Models.QuestionType.Email:
+                                    <input type="email" class="form-control" name="Answers[@index].Options" placeholder="Enter email address" />
+                                    break;
+                                default:
+                                    <p>Question type not supported.</p>
+                                    break;
+                            }
+                        </div>
 
-                            default:
-                                <p>Question type not supported.</p>
-                                break;
-                        }
-                    </div>
+                        index++; @* increase index manually *@
+                    }
                 }
-            }
-            else
-            {
-                <p>No questions available.</p>
-            }
-        </div>
-
-        <div class="row">
-            <a asp-controller="Template" asp-action="AllTemplate" class="col-2 btn-sm btn-primary">Back to Templates</a>
-            <div class="form-group col-10">
-                <button type="submit" class="btn-sm btn-success">Submit Response</button>
+                else
+                {
+                    <p>No questions available.</p>
+                }
             </div>
-        </div>
+
+            <div class="row mt-3">
+                <a asp-controller="Template" asp-action="AllTemplate" class="col-2 btn-sm btn-primary">Back to Templates</a>
+                <div class="form-group col-10">
+                    <button type="submit" class="btn-sm btn-success">Submit Response</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </body>

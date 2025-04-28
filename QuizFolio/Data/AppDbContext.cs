@@ -13,8 +13,7 @@ namespace QuizFolio.Data
         }
         public DbSet<Template> Templates { get; set; }
         public DbSet<Question> Questions { get; set; }
-        public DbSet<Form> Forms { get; set; }
-        public DbSet<Answer> Answers { get; set; }
+        public DbSet<FormResponse> FormResponses { get; set; }
         public DbSet<QuestionOption> QuestionOptions { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -37,31 +36,19 @@ namespace QuizFolio.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            builder.Entity<Form>(entity =>
-            {
-                entity.HasOne(f => f.Template)
-                      .WithMany(t => t.Forms)
-                      .HasForeignKey(f => f.TemplateId)
-                      .OnDelete(DeleteBehavior.Restrict);
+            //builder.Entity<FormResponse>(entity =>
+            //{
+            //    entity.HasOne(f => f.Template)
+            //          .WithMany(t => t.FormResponses)
+            //          .HasForeignKey(f => f.TemplateId)
+            //          .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(f => f.Respondent)
-                      .WithMany(u => u.Forms)
-                      .HasForeignKey(f => f.RespondentId)
-                      .OnDelete(DeleteBehavior.SetNull);
-            });
+            //    entity.HasOne(f => f.Respondent)
+            //          .WithMany(u => u.FormResponses)
+            //          .HasForeignKey(f => f.RespondentId)
+            //          .OnDelete(DeleteBehavior.SetNull);
+            //});
 
-            builder.Entity<Answer>(entity =>
-            {
-                entity.HasOne(a => a.Form)
-                      .WithMany(f => f.Answers)
-                      .HasForeignKey(a => a.FormId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(a => a.Question)
-                      .WithMany()
-                      .HasForeignKey(a => a.QuestionId)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
 
             builder.Entity<QuestionOption>(entity =>
             {

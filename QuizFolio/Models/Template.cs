@@ -12,6 +12,6 @@
         public string CreatorId { get; set; }
         public Users Creator { get; set; }
         public ICollection<Question> Questions { get; set; }
-        public ICollection<Form> Forms { get; set; }
+        public ICollection<FormResponse> FormResponses { get; set; }
     }
 }

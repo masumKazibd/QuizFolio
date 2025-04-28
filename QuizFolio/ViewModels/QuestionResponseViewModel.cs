@@ -9,7 +9,7 @@ namespace QuizFolio.ViewModels
         public QuestionType Type { get; set; }
         public bool IsRequired { get; set; }
         public List<string>? Options { get; set; }
-        public string? Answer { get; set; } // Bound to form inputs
+        public string? Answer { get; set; } // for single response
 
     }
 }

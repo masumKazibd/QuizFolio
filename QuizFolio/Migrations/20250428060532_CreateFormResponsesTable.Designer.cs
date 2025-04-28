@@ -12,8 +12,8 @@ using QuizFolio.Data;
 namespace QuizFolio.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250414045029_added new model")]
-    partial class addednewmodel
+    [Migration("20250428060532_CreateFormResponsesTable")]
+    partial class CreateFormResponsesTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,6 +158,124 @@ namespace QuizFolio.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("QuizFolio.Models.FormResponse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AnswerOptionsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AnswerText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RespondentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TemplateId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RespondentId");
+
+                    b.HasIndex("TemplateId");
+
+                    b.ToTable("FormResponses");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Question", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("QuestionTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("QuestionType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TemplateId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId");
+
+                    b.ToTable("Questions");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.QuestionOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Option")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("QuestionOptions");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Template", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.ToTable("Templates");
+                });
+
             modelBuilder.Entity("QuizFolio.Models.Users", b =>
                 {
                     b.Property<string>("Id")
@@ -184,6 +302,9 @@ namespace QuizFolio.Migrations
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsBlocked")
                         .HasColumnType("bit");
@@ -286,6 +407,75 @@ namespace QuizFolio.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.FormResponse", b =>
+                {
+                    b.HasOne("QuizFolio.Models.Users", "Respondent")
+                        .WithMany("FormResponses")
+                        .HasForeignKey("RespondentId");
+
+                    b.HasOne("QuizFolio.Models.Template", "Template")
+                        .WithMany("FormResponses")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Respondent");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Question", b =>
+                {
+                    b.HasOne("QuizFolio.Models.Template", "Template")
+                        .WithMany("Questions")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.QuestionOption", b =>
+                {
+                    b.HasOne("QuizFolio.Models.Question", "Question")
+                        .WithMany("Options")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Template", b =>
+                {
+                    b.HasOne("QuizFolio.Models.Users", "Creator")
+                        .WithMany("Templates")
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Question", b =>
+                {
+                    b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Template", b =>
+                {
+                    b.Navigation("FormResponses");
+
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Users", b =>
+                {
+                    b.Navigation("FormResponses");
+
+                    b.Navigation("Templates");
                 });
 #pragma warning restore 612, 618
         }

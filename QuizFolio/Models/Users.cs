@@ -10,7 +10,7 @@ namespace QuizFolio.Models
         public bool IsBlocked { get; set; }
         public bool IsAdmin { get; set; }
         public ICollection<Template> Templates { get; set; }
-        public ICollection<Form> Forms { get; set; } = new List<Form>();
+        public ICollection<FormResponse> FormResponses { get; set; } = new List<FormResponse>();
 
     }
 }

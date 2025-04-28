@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace QuizFolio.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class CreateFormResponsesTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,6 +34,7 @@ namespace QuizFolio.Migrations
                     Designation = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LoginTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsBlocked = table.Column<bool>(type: "bit", nullable: false),
+                    IsAdmin = table.Column<bool>(type: "bit", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -160,6 +161,100 @@ namespace QuizFolio.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Templates",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsPublic = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Templates", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Templates_AspNetUsers_CreatorId",
+                        column: x => x.CreatorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FormResponses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TemplateId = table.Column<int>(type: "int", nullable: false),
+                    RespondentId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    QuestionId = table.Column<int>(type: "int", nullable: false),
+                    AnswerText = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AnswerOptionsJson = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FormResponses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FormResponses_AspNetUsers_RespondentId",
+                        column: x => x.RespondentId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_FormResponses_Templates_TemplateId",
+                        column: x => x.TemplateId,
+                        principalTable: "Templates",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Questions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    QuestionTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    QuestionType = table.Column<int>(type: "int", nullable: false),
+                    IsRequired = table.Column<bool>(type: "bit", nullable: false),
+                    TemplateId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Questions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Questions_Templates_TemplateId",
+                        column: x => x.TemplateId,
+                        principalTable: "Templates",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QuestionOptions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Option = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    QuestionId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuestionOptions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_QuestionOptions_Questions_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "Questions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -198,6 +293,31 @@ namespace QuizFolio.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FormResponses_RespondentId",
+                table: "FormResponses",
+                column: "RespondentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FormResponses_TemplateId",
+                table: "FormResponses",
+                column: "TemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuestionOptions_QuestionId",
+                table: "QuestionOptions",
+                column: "QuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Questions_TemplateId",
+                table: "Questions",
+                column: "TemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Templates_CreatorId",
+                table: "Templates",
+                column: "CreatorId");
         }
 
         /// <inheritdoc />
@@ -219,7 +339,19 @@ namespace QuizFolio.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "FormResponses");
+
+            migrationBuilder.DropTable(
+                name: "QuestionOptions");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Questions");
+
+            migrationBuilder.DropTable(
+                name: "Templates");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
