@@ -97,8 +97,7 @@ namespace QuizFolio.Controllers
             }
         }
 
-
-        // POST: Delete template
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> DeleteTemplate(int id)
         {
@@ -107,16 +106,24 @@ namespace QuizFolio.Controllers
                 return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var isAdmin = User.IsInRole("Admin");
+            //var isAdmin = User.IsInRole("Admin");
 
-            if (template.CreatorId != userId && !isAdmin)
-                return Forbid();
+            //if (template.CreatorId != userId && !isAdmin)
+            if (template.CreatorId != userId)
+            {
+                TempData["WarningMessage"] = "You are not the creator!";
+                return RedirectToAction("AllTemplate");
+                //return Forbid();
+            }
 
             _context.Templates.Remove(template);
             await _context.SaveChangesAsync();
 
+            TempData["Message"] = "Deleted Successfully!!!";
+
             return RedirectToAction("AllTemplate");
         }
+
     }
 }
 
