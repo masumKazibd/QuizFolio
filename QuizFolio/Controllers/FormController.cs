@@ -39,6 +39,11 @@ namespace QuizFolio.Controllers
         public async Task<IActionResult> SubmitForm(int TemplateId, List<QuestionResponseViewModel> Answers)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Answers == null || !Answers.Any())
+            {
+                TempData["Message"] = "You must answer at least one question!";
+                return RedirectToAction("ViewForm", "Form", new { id = TemplateId });
+            }
 
             var answersToSave = Answers.Select(a => new
             {

@@ -1,0 +1,176 @@
+﻿@using QuizFolio.ViewModels;
+@model TemplateCreateViewModel;
+
+@{
+    ViewData["Title"] = "Edit Template";
+}
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="EditTemplate" method="post">
+    <div class="card-header">
+        <h5 class="card-title">Edit Template Details</h5>
+        <div class="form-group">
+            <label class="alert-danger" asp-for="IsPublic">Make it public?</label>
+            <input asp-for="IsPublic" type="checkbox" />
+        </div>
+
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3 form-floating">
+                <input asp-for="Title" class="form-control" />
+                <label asp-for="Title" class="form-label"></label>
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 form-floating">
+                <input asp-for="Description" class="form-control" />
+                <label asp-for="Description" class="form-label"></label>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <br />
+
+    <div id="questions-container">
+        @for (int i = 0; i < Model.Questions.Count; i++)
+        {
+            <div class="question-group card-header">
+                <div class="row">
+                    <div class="col-8">
+                        <h5 class="card-title">Question @(i + 1)</h5>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <select asp-for="Questions[i].QuestionType" class="form-select" asp-items="Html.GetEnumSelectList<QuestionType>()">
+                                <option value="">Select Question Type</option>
+                            </select>
+                            <label asp-for="Questions[i].QuestionType">Question Type</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-3 form-floating">
+                        <input asp-for="Questions[i].QuestionTitle" class="form-control" />
+                        <label asp-for="Questions[i].QuestionTitle" class="form-label"></label>
+                        <span asp-validation-for="Questions[i].QuestionTitle" class="text-danger"></span>
+                    </div>
+
+                    <div class="options-container" data-index="@i">
+                        @for (int j = 0; j < Model.Questions[i].Options.Count; j++)
+                        {
+                            <div class="mb-3 form-floating">
+                                <input name="Questions[@i].Options[@j].Option" value="@Model.Questions[i].Options[j].Option" class="form-control" />
+                                <label>Option @(j + 1)</label>
+                            </div>
+                        }
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary add-option" data-index="@i">Add Option</button>
+                </div>
+
+                <div class="card-footer row">
+                    <div class="form-group col-10">
+                        <label asp-for="Questions[i].IsRequired">Required</label>
+                        <input asp-for="Questions[i].IsRequired" type="checkbox" />
+                    </div>
+                    <button type="button" class="btn-sm col-2 btn-danger remove-question">Remove Question</button>
+                </div>
+            </div>
+            <br />
+        }
+    </div>
+
+    <div class="row">
+        <button type="button" id="add-question" class="col-2 btn-sm btn-primary">Add New Question</button>
+        <div class="form-group col-10">
+            <button type="submit" class="btn-sm btn-success">Save Changes</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var questionIndex = @Model.Questions.Count;
+            var optionCounters = {};
+
+            // For adding new question
+            $('#add-question').click(function () {
+                console.log("Adding Question Index:", questionIndex);
+
+                var questionHtml =
+                    `<div class="question-group card-header">
+                        <div class="row">
+                            <div class="col-8">
+                                <h5 class="card-title">Question ${questionIndex + 1}</h5>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-floating">
+                                    <select name="Questions[${questionIndex}].QuestionType" class="form-select">
+                                       <option value="">Select Question Type</option>
+        @foreach (var type in Enum.GetValues(typeof(QuizFolio.Models.QuestionType)).Cast<QuizFolio.Models.QuestionType>())
+        {
+                                               <option value="@type">@type</option>
+        }
+                                    </select>
+                                    <label>Question Type</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="mb-3 form-floating">
+                                <input name="Questions[${questionIndex}].QuestionTitle" class="form-control" />
+                                <label>Question Title</label>
+                            </div>
+
+                            <div class="options-container" data-index="${questionIndex}"></div>
+                            <button type="button" class="btn btn-sm btn-secondary add-option" data-index="${questionIndex}">Add Option</button>
+                        </div>
+
+                        <div class="card-footer row">
+                            <div class="form-group col-10">
+                                <label>Required</label>
+                                <input type="checkbox" name="Questions[${questionIndex}].IsRequired" value="true" />
+                            </div>
+                            <button type="button" class="btn-sm col-2 btn-danger remove-question">Remove Question</button>
+                        </div>
+                    </div>`;
+
+                $('#questions-container').append(questionHtml);
+                questionIndex++;
+            });
+
+            // For removing question
+            $(document).on('click', '.remove-question', function () {
+                $(this).closest('.question-group').remove();
+            });
+
+            // For adding option to specific question
+            $(document).on('click', '.add-option', function () {
+                var qIndex = $(this).data('index');
+                if (optionCounters[qIndex] === undefined) optionCounters[qIndex] = $(`.options-container[data-index='${qIndex}'] input`).length;
+
+                var optionHtml = `
+                    <div class="mb-3 form-floating">
+                        <input name="Questions[${qIndex}].Options[${optionCounters[qIndex]}].Option" class="form-control" />
+                        <label>Option ${optionCounters[qIndex] + 1}</label>
+                    </div>`;
+
+                $(this).siblings('.options-container').append(optionHtml);
+                optionCounters[qIndex]++;
+            });
+        });
+    </script>
+}

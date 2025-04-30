@@ -22,8 +22,6 @@ namespace QuizFolio.Controllers
             this.userManager = userManager;
             _context = context;
         }
-        //[Authorize]
-        // GET: List all templates (public + user's private)
         public async Task<IActionResult> AllTemplate()
         {
             var templates = _context.Templates
@@ -95,6 +93,40 @@ namespace QuizFolio.Controllers
                     return View(model);
                 }
             }
+        }
+
+        [Authorize]
+        [Authorize]
+        public IActionResult EditTemplate(int id)
+        {
+            var template = _context.Templates
+                .Include(t => t.Questions)
+                .ThenInclude(q => q.Options)
+                .FirstOrDefault(t => t.Id == id);
+
+            if (template == null)
+            {
+                return NotFound();
+            }
+
+            var model = new TemplateCreateViewModel
+            {
+                Title = template.Title,
+                Description = template.Description,
+                IsPublic = template.IsPublic,
+                Questions = template.Questions.Select(q => new QuestionViewModel
+                {
+                    QuestionTitle = q.QuestionTitle,
+                    QuestionType = q.QuestionType,
+                    IsRequired = q.IsRequired,
+                    Options = q.Options.Select(o => new QuestionOptionViewModel
+                    {
+                        Option = o.Option
+                    }).ToList()
+                }).ToList()
+            };
+
+            return View(model);
         }
 
         [Authorize]
