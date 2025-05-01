@@ -128,6 +128,59 @@ namespace QuizFolio.Controllers
 
             return View(model);
         }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> EditTemplate(int id, TemplateCreateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Message"] = "Invalid form data.";
+                return View(model);
+            }
+
+            var template = await _context.Templates
+                .Include(t => t.Questions)
+                .ThenInclude(q => q.Options)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (template == null)
+            {
+                return NotFound();
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (template.CreatorId != userId)
+            {
+                TempData["WarningMessage"] = "You are not authorized to edit this template.";
+                return RedirectToAction("AllTemplate");
+            }
+
+            // Update template fields
+            template.Title = model.Title;
+            template.Description = model.Description;
+            template.IsPublic = model.IsPublic;
+
+            // Remove existing questions and options
+            _context.QuestionOptions.RemoveRange(template.Questions.SelectMany(q => q.Options));
+            _context.Questions.RemoveRange(template.Questions);
+            await _context.SaveChangesAsync();
+
+            // Re-add updated questions and options
+            template.Questions = model.Questions.Select(q => new Question
+            {
+                QuestionTitle = q.QuestionTitle,
+                QuestionType = q.QuestionType,
+                IsRequired = q.IsRequired,
+                Options = q.Options?.Select(o => new QuestionOption
+                {
+                    Option = o.Option
+                }).ToList() ?? new List<QuestionOption>()
+            }).ToList();
+
+            await _context.SaveChangesAsync();
+            TempData["Message"] = "Template updated successfully.";
+            return RedirectToAction("AllTemplate");
+        }
 
         [Authorize]
         [HttpPost]
