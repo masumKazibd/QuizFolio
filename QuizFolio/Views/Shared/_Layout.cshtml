@@ -25,9 +25,6 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Template" asp-action="AllTemplate">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Template" asp-action="CreateTemplate">CreateTemplate</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Template" asp-action="AllTemplate">AllTemplate</a>
                         </li>
                         <li class="nav-item">
@@ -36,7 +33,7 @@
                         <!-- Search Form -->
                         <form class="d-flex" method="get" asp-controller="Template" asp-action="Search">
                             <input class="form-control me-2" type="search" placeholder="Search templates..." aria-label="Search" name="searchTerm" />
-                            <button class="btn btn-outline-success" type="submit">Search</button>
+                            <button class="btn btn-sm btn-outline-success" type="submit"><i class="fa fa-search"></i></button>
                         </form>
                         <partial name="_LoginPartial" />
                         <button class="btn btn-outline-dark" onclick="toggleTheme()">Switch Theme</button>
@@ -54,7 +51,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - QuizFolio - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2025 - QuizFolio - Masum Kazi<a asp-area="" asp-controller="" asp-action=""></a>
         </div>
     </footer>
 

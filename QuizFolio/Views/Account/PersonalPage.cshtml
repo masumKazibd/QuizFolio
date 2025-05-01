@@ -1,0 +1,75 @@
+﻿@using QuizFolio.ViewModels
+@model PersonalPageViewModel
+
+<div class="container mt-4">
+    <h3>Your Personal Page</h3>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="personalPageTabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="templatesTab" data-bs-toggle="tab" href="#templatesTabContent">Templates</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="formsTab" data-bs-toggle="tab" href="#formsTabContent">Forms</a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-4">
+        <!-- Templates Tab -->
+        <div class="tab-pane fade show active" id="templatesTabContent">
+            <h4>Manage Your Templates</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var template in Model.Templates)
+                    {
+                        <tr>
+                            <td><a href="@Url.Action("ViewTemplate", "Template", new { id = template.Id })">@template.Title</a></td>
+                            <td>@template.Description</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-primary" href="@Url.Action("EditTemplate", "Template", new { id = template.Id })">Edit</a>
+                                <form method="post" asp-controller="Template" asp-action="DeleteTemplate" asp-route-id="@template.Id" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Forms Tab -->
+        <div class="tab-pane fade" id="formsTabContent">
+            <h4>Your Filled Forms</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Template</th>
+                        <th>Submitted By</th>
+                        <th>Submitted At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var form in Model.Forms)
+                    {
+                        <tr>
+                            <td>@form.Template.Title</td>
+                            <td>@form.RespondentId</td>
+                            <td>@form.SubmittedAt</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-primary" href="@Url.Action("ViewForm", "Form", new { id = form.Id })">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

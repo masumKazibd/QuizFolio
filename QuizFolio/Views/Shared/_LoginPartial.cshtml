@@ -8,14 +8,15 @@
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">User</a>
         <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><a class="dropdown-item" asp-controller="Account" asp-action="PersonalPage">Profile</a></li>
             @if (signInManager.IsSignedIn(User))
             {
-                <li><a class="dropdown-item" asp-controller="Account" asp-action="Login">Login</a></li>
+                <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Logout</a></li>
             }
             else
             {
-                <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Logout</a></li>
+                <li><a class="dropdown-item" asp-controller="Account" asp-action="Login">Login</a></li>
+                <li><a class="dropdown-item" asp-controller="Account" asp-action="Register">Register</a></li>
             }
         </ul>
     </li>

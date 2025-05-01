@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using QuizFolio.Data;
 using QuizFolio.Models;
 using QuizFolio.ViewModels;
+using System.Security.Claims;
 
 namespace QuizFolio.Controllers
 {
@@ -9,11 +12,13 @@ namespace QuizFolio.Controllers
     {
         private readonly SignInManager<Users> signInManager;
         private readonly UserManager<Users> userManager;
+        private readonly AppDbContext _context;
 
-        public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager)
+        public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager, AppDbContext context)
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
+            _context = context;
         }
 
         public IActionResult Login()
@@ -83,7 +88,7 @@ namespace QuizFolio.Controllers
                 }
                 else
                 {
-                    foreach(var error in result.Errors)
+                    foreach (var error in result.Errors)
                     {
                         ModelState.AddModelError("", error.Description);
                     }
@@ -104,14 +109,14 @@ namespace QuizFolio.Controllers
             if (ModelState.IsValid)
             {
                 var user = await userManager.FindByEmailAsync(model.Email);
-                if(user == null)
+                if (user == null)
                 {
                     ModelState.AddModelError("", "Something is wrong");
                     return View(model);
                 }
                 else
                 {
-                    return RedirectToAction("ChangePassword", "Account", new {username = user.UserName});
+                    return RedirectToAction("ChangePassword", "Account", new { username = user.UserName });
 
                 }
             }
@@ -124,7 +129,7 @@ namespace QuizFolio.Controllers
             {
                 return RedirectToAction("VerifyEmail", "Account");
             }
-            return View(new ChangePasswordViewModel { Email = username});
+            return View(new ChangePasswordViewModel { Email = username });
         }
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
@@ -167,6 +172,29 @@ namespace QuizFolio.Controllers
         {
             await signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        // GET: Personal Page
+        public IActionResult PersonalPage()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var userTemplates = _context.Templates
+                .Where(t => t.CreatorId == userId)
+                .Include(t => t.FormResponses)
+                .ToList();
+
+            var userForms = _context.FormResponses
+                .Where(f => f.Template.CreatorId == userId)
+                .ToList();
+
+            var model = new PersonalPageViewModel
+            {
+                Templates = userTemplates,
+                Forms = userForms
+            };
+
+            return View(model);
         }
     }
 }
