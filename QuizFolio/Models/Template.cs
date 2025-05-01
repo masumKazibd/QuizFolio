@@ -13,5 +13,7 @@
         public Users Creator { get; set; }
         public ICollection<Question> Questions { get; set; }
         public ICollection<FormResponse> FormResponses { get; set; }
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<Like> Likes { get; set; }
     }
 }

@@ -11,6 +11,7 @@ namespace QuizFolio.Models
         public bool IsAdmin { get; set; }
         public ICollection<Template> Templates { get; set; }
         public ICollection<FormResponse> FormResponses { get; set; } = new List<FormResponse>();
-
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<Like> Likes { get; set; }
     }
 }

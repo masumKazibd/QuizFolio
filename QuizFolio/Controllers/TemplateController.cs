@@ -28,9 +28,34 @@ namespace QuizFolio.Controllers
                 .Include(t => t.Creator)
                 .Include(t => t.Questions)
                 .Include(t => t.FormResponses)
+                .Include(t => t.Comments)
+                .ThenInclude(c => c.User)
                 .ToList();
 
             return View(templates);
+        }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AddComment(int id, string content)
+        {
+            var template = await _context.Templates.FindAsync(id);
+            if (template == null)
+            {
+                TempData["WarningMessage"] = "Template not found.";
+                return RedirectToAction("AllTemplate");
+            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var comment = new Comment
+            {
+                Content = content,
+                TemplateId = id,
+                UserId = userId
+            };
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Comment added successfully.";
+            return RedirectToAction("AllTemplate");
         }
 
         [Authorize]

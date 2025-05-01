@@ -1,6 +1,4 @@
-﻿@{
-}
-@using QuizFolio.Models;
+﻿@using QuizFolio.Models;
 @model IEnumerable<QuizFolio.Models.Template>
 <head>
     <link rel="stylesheet" href="~/css/alltemplate.css" />
@@ -65,10 +63,62 @@
                                 <div class="card-title-template">@Template.Title</div>
                                 <div class="card-text-template">@Template.Description</div>
                             </div>
-                            <div class="card-footer">
-                                Creator: @Template.Creator
-@*                                 <a asp-controller="Form" asp-action="ViewForm" asp-route-id="@Template.Id" class="view-button btn-sm btn-outline-light">View Template</a>
- *@                            </div>
+
+                            <div class="card-footer row">
+                                <p class="col">Creator: @Template.Creator</p>
+                                <div class="col-6">
+                                    <form method="post" asp-controller="Template" asp-action="LikeTemplate" asp-route-id="@Template.Id">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            <i class="fa fa-thumbs-up"></i> Like
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#commentModal-@Template.Id">
+                                        <i class="fa fa-comment"></i> Comment
+                                    </button>
+                                </div>
+
+                                <!-- Comment Modal -->
+                                <div class="modal fade" id="commentModal-@Template.Id" tabindex="-1" aria-labelledby="commentModalLabel-@Template.Id" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="commentModalLabel-@Template.Id">Add a Comment</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body row">
+                                                <form method="post" asp-controller="Template" asp-action="AddComment" asp-route-id="@Template.Id">
+                                                    <textarea name="content" class="form-control col-10" rows="4" placeholder="Your comment..."></textarea>
+                                                    <button type="submit" class="btn btn-sm btn-primary mt-3 col-2">Comment</button>
+                                                </form>
+                                            </div>
+
+                                            <!-- Display Comments -->
+                                            <h5 class="mt-4 p-2">Comments</h5>
+                                            @if (Template.Comments.Any())
+                                            {
+                                                <div class="comments-list">
+                                                    @foreach (var comment in Template.Comments)
+                                                    {
+                                                        <div class="comment p-2">
+                                                            <div class="comment-header">
+                                                                <strong>@comment.User.UserName</strong>
+                                                                <span class="text-muted">@comment.CreatedAt.ToString("g")</span>
+                                                            </div>
+                                                            <p>@comment.Content</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <p>No comments yet.</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 }
@@ -114,6 +164,7 @@
     </div>
 
 </body>
+
 <script>
     function toggleMenu(id) {
         const menus = document.querySelectorAll('.menu');
@@ -132,7 +183,7 @@
     }
 
     // Close menu if clicked outside
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         if (!event.target.matches('.menu-button')) {
             const menus = document.querySelectorAll('.menu');
             menus.forEach(menu => {
