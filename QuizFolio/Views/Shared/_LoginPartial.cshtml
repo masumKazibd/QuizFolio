@@ -1,6 +1,26 @@
 ﻿﻿@using Microsoft.AspNetCore.Identity;
 @inject SignInManager<Users> signInManager;
 
+
+@* <ul class="navbar-nav mb-2 mb-lg-0">
+ *@    
+ <ul class="navbar-nav ms-auto">
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">User</a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            @if (signInManager.IsSignedIn(User))
+            {
+                <li><a class="dropdown-item" asp-controller="Account" asp-action="Login">Login</a></li>
+            }
+            else
+            {
+                <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Logout</a></li>
+            }
+        </ul>
+    </li>
+</ul>
+@* 
 <ul class="navbar-nav ms-auto">
     @if (signInManager.IsSignedIn(User))
     {
@@ -18,4 +38,4 @@
         </li>
     }
 
-</ul>
+</ul> *@

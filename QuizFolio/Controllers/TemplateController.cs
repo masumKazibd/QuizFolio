@@ -22,6 +22,22 @@ namespace QuizFolio.Controllers
             this.userManager = userManager;
             _context = context;
         }
+        public IActionResult Search(string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return View(new List<Template>());
+            }
+
+            var results = _context.Templates
+                .Where(t => t.Title.Contains(searchTerm) ||
+                            t.Description.Contains(searchTerm) ||
+                            t.Questions.Any(q => q.QuestionTitle.Contains(searchTerm)) ||
+                            t.Comments.Any(c => c.Content.Contains(searchTerm)))
+                .ToList();
+
+            return View(results);
+        }
         public async Task<IActionResult> AllTemplate()
         {
             var templates = _context.Templates

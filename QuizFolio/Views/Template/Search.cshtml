@@ -1,0 +1,20 @@
+﻿@model IEnumerable<QuizFolio.Models.Template>
+
+<h3>Search Results</h3>
+
+@if (!Model.Any())
+{
+    <p>No templates found matching your search term.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var template in Model)
+        {
+            <a href="@Url.Action("ViewForm", "Form", new { id = template.Id })" class="list-group-item list-group-item-action">
+                <h5>@template.Title</h5>
+                <p>@template.Description</p>
+            </a>
+        }
+    </div>
+}
