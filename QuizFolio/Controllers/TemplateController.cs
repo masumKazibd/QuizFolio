@@ -45,10 +45,34 @@ namespace QuizFolio.Controllers
                 .Include(t => t.Questions)
                 .Include(t => t.FormResponses)
                 .Include(t => t.Comments)
-                .ThenInclude(c => c.User)
+                    .ThenInclude(c => c.User)
+                .Include(t => t.Likes)
+                    .ThenInclude(l => l.User)
                 .ToList();
 
             return View(templates);
+        }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> LikeTemplate(int id)
+        {
+            var template = await _context.Templates.FindAsync(id);
+            if (template == null)
+            {
+                TempData["WarningMessage"] = "Template not found.";
+                return RedirectToAction("AllTemplate");
+
+            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var like = new Like
+            {
+                TemplateId = id,
+                UserId = userId
+            };
+            _context.Likes.Add(like);
+            await _context.SaveChangesAsync();
+            TempData["Message"] = "Like added successfully.";
+            return RedirectToAction("AllTemplate");
         }
         [Authorize]
         [HttpPost]
