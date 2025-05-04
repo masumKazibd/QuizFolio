@@ -1,5 +1,9 @@
 ﻿@using QuizFolio.Models;
+@using System.Security.Claims
 @model IEnumerable<QuizFolio.Models.Template>
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
 <head>
     <link rel="stylesheet" href="~/css/alltemplate.css" />
 </head>
@@ -22,11 +26,12 @@
                 @foreach (var Template in Model)
                 {
                     var menuId = "menu-" + Template.Id;
+                    var alreadyLiked = Template.Likes?.Any(l => l.UserId == userId) ?? false;
 
                     <div class="col">
                         <div class="card-template h-100">
                             <div class="card-header-template">
-                                #TAG NAME
+                                <i class="fa fa-tag"> TAG NAME</i>
                                 <button class="menu-button" onclick="toggleMenu('@menuId')">⋮</button>
                             </div>
 
@@ -53,8 +58,8 @@
                                 <p class="col">Creator: @Template.Creator</p>
                                 <div class="col-6">
                                     <form method="post" asp-controller="Template" asp-action="LikeTemplate" asp-route-id="@Template.Id">
-                                        <button type="submit" class="btn btn-sm btn-outline-primary">
-                                            <i class="fa fa-thumbs-up"></i> @Template.Likes.Count() Like
+                                        <button type="submit" class="btn btn-sm @(alreadyLiked ? "btn-outline-primary" : "btn-outline")">
+                                            <i class="fa fa-thumbs-up"></i> @Template.Likes?.Count() @(alreadyLiked ? "Liked" : "Like")
                                         </button>
                                     </form>
                                 </div>

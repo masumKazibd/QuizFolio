@@ -37,7 +37,7 @@
                             <button class="btn btn-sm btn-outline-success" type="submit"><i class="fa fa-search"></i></button>
                         </form>
                         <partial name="_LoginPartial" />
-                        <button class="btn btn-outline-dark" onclick="toggleTheme()">Switch Theme</button>
+                        <button class="btn btn-outline-dark fa fa-sun" onclick="toggleTheme()"></button>
                     </ul>
                 </div>
             </div>
@@ -78,3 +78,19 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+<script>
+    // Auto-hide success alert after 3 seconds
+    setTimeout(() => {
+        const successAlert = document.getElementById('successAlert');
+        if (successAlert) {
+            const bsAlert = new bootstrap.Alert(successAlert);
+            bsAlert.close();
+        }
+
+        const warningAlert = document.getElementById('warningAlert');
+        if (warningAlert) {
+            const bsAlert = new bootstrap.Alert(warningAlert);
+            bsAlert.close();
+        }
+    }, 3000); // 3 seconds
+</script>

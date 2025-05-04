@@ -64,14 +64,25 @@ namespace QuizFolio.Controllers
 
             }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var like = new Like
+            var existingLike = await _context.Likes
+                .FirstOrDefaultAsync(l => l.TemplateId == id && l.UserId == userId);
+            if(existingLike != null)
             {
-                TemplateId = id,
-                UserId = userId
-            };
-            _context.Likes.Add(like);
-            await _context.SaveChangesAsync();
-            TempData["Message"] = "Like added successfully.";
+                _context.Likes.Remove(existingLike);
+                await _context.SaveChangesAsync();
+                TempData["WarningMessage"] = "Like removed.";
+            }
+            else
+            {
+                var like = new Like
+                {
+                    TemplateId = id,
+                    UserId = userId
+                };
+                _context.Likes.Add(like);
+                await _context.SaveChangesAsync();
+                TempData["Message"] = "Like added successfully.";
+            }                
             return RedirectToAction("AllTemplate");
         }
         [Authorize]
