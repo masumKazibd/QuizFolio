@@ -7,13 +7,6 @@
 @{
     ViewData["Title"] = "Create New Template";
 }
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        @TempData["Message"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
 <form asp-action="CreateTemplate" method="post">
     <div class="card-header">
         <h5 class="card-title">Template Details</h5>

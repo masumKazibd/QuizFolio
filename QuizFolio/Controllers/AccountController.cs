@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizFolio.Data;
@@ -174,7 +175,7 @@ namespace QuizFolio.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // GET: Personal Page
+        [Authorize]
         public IActionResult PersonalPage()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
