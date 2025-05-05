@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using QuizFolio.Models;
+using System.Reflection.Emit;
 
 namespace QuizFolio.Data
 {
@@ -15,7 +16,7 @@ namespace QuizFolio.Data
         public DbSet<Question> Questions { get; set; }
         public DbSet<FormResponse> FormResponses { get; set; }
         public DbSet<QuestionOption> QuestionOptions { get; set; }
-
+        public DbSet<Topic> Topics { get; set; }
         public DbSet<Like> Likes { get; set; }
         public DbSet<Comment> Comments { get; set; }
 
@@ -28,6 +29,10 @@ namespace QuizFolio.Data
                 entity.HasOne(t => t.Creator)
                       .WithMany(u => u.Templates)
                       .HasForeignKey(t => t.CreatorId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(t => t.Topic)
+                      .WithMany(topic => topic.Templates)
+                      .HasForeignKey(t => t.TopicId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -61,8 +66,11 @@ namespace QuizFolio.Data
                       .HasForeignKey(qo => qo.QuestionId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
-
-
+            builder.Entity<Topic>().HasData(
+            new Topic { Id = 1, TopicName = "Education" },
+            new Topic { Id = 2, TopicName = "Quiz" },
+            new Topic { Id = 3, TopicName = "Other" }
+            );
         }
     }
 }

@@ -47,7 +47,7 @@ namespace QuizFolio.Controllers
                             user.LoginTime = DateTime.Now;
                             await userManager.UpdateAsync(user);
                         }
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("AllTemplate", "Template");
                     }
                     else
                     {

@@ -316,11 +316,50 @@ namespace QuizFolio.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TopicId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
 
+                    b.HasIndex("TopicId");
+
                     b.ToTable("Templates");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Topic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("TopicName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Topics");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            TopicName = "Education"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            TopicName = "Quiz"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            TopicName = "Other"
+                        });
                 });
 
             modelBuilder.Entity("QuizFolio.Models.Users", b =>
@@ -541,7 +580,15 @@ namespace QuizFolio.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("QuizFolio.Models.Topic", "Topic")
+                        .WithMany("Templates")
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Creator");
+
+                    b.Navigation("Topic");
                 });
 
             modelBuilder.Entity("QuizFolio.Models.Question", b =>
@@ -558,6 +605,11 @@ namespace QuizFolio.Migrations
                     b.Navigation("Likes");
 
                     b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Topic", b =>
+                {
+                    b.Navigation("Templates");
                 });
 
             modelBuilder.Entity("QuizFolio.Models.Users", b =>

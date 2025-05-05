@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuizFolio.Data;
 using QuizFolio.Models;
 using QuizFolio.ViewModels;
+using System.Diagnostics.Eventing.Reader;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -40,7 +42,9 @@ namespace QuizFolio.Controllers
         }
         public async Task<IActionResult> AllTemplate()
         {
+            ViewBag.Topics = _context.Topics.ToList();
             var templates = _context.Templates
+                .Include(t => t.Topic)
                 .Include(t => t.Creator)
                 .Include(t => t.Questions)
                 .Include(t => t.FormResponses)
@@ -52,67 +56,89 @@ namespace QuizFolio.Controllers
 
             return View(templates);
         }
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> LikeTemplate(int id)
         {
-            var template = await _context.Templates.FindAsync(id);
-            if (template == null)
+            if (User.Identity.IsAuthenticated)
             {
-                TempData["WarningMessage"] = "Template not found.";
-                return RedirectToAction("AllTemplate");
 
-            }
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var existingLike = await _context.Likes
-                .FirstOrDefaultAsync(l => l.TemplateId == id && l.UserId == userId);
-            if(existingLike != null)
-            {
-                _context.Likes.Remove(existingLike);
-                await _context.SaveChangesAsync();
-                TempData["WarningMessage"] = "Like removed.";
+                var template = await _context.Templates.FindAsync(id);
+                if (template == null)
+                {
+                    TempData["WarningMessage"] = "Template not found.";
+                    return RedirectToAction("AllTemplate");
+
+                }
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var existingLike = await _context.Likes
+                    .FirstOrDefaultAsync(l => l.TemplateId == id && l.UserId == userId);
+                if (existingLike != null)
+                {
+                    _context.Likes.Remove(existingLike);
+                    await _context.SaveChangesAsync();
+                    TempData["WarningMessage"] = "Like removed.";
+                }
+                else
+                {
+                    var like = new Like
+                    {
+                        TemplateId = id,
+                        UserId = userId
+                    };
+                    _context.Likes.Add(like);
+                    await _context.SaveChangesAsync();
+                    TempData["Message"] = "Like added successfully.";
+                }
             }
             else
             {
-                var like = new Like
-                {
-                    TemplateId = id,
-                    UserId = userId
-                };
-                _context.Likes.Add(like);
-                await _context.SaveChangesAsync();
-                TempData["Message"] = "Like added successfully.";
-            }                
+                TempData["WarningMessage"] = "Please login first";
+            }
             return RedirectToAction("AllTemplate");
+
         }
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddComment(int id, string content)
         {
-            var template = await _context.Templates.FindAsync(id);
-            if (template == null)
+            if (User.Identity.IsAuthenticated)
             {
-                TempData["WarningMessage"] = "Template not found.";
-                return RedirectToAction("AllTemplate");
-            }
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var comment = new Comment
-            {
-                Content = content,
-                TemplateId = id,
-                UserId = userId
-            };
-            _context.Comments.Add(comment);
-            await _context.SaveChangesAsync();
+                var template = await _context.Templates.FindAsync(id);
+                if (template == null)
+                {
+                    TempData["WarningMessage"] = "Template not found.";
+                    return RedirectToAction("AllTemplate");
+                }
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var comment = new Comment
+                {
+                    Content = content,
+                    TemplateId = id,
+                    UserId = userId
+                };
+                _context.Comments.Add(comment);
+                await _context.SaveChangesAsync();
 
-            TempData["Message"] = "Comment added successfully.";
+                TempData["Message"] = "Comment added successfully.";
+            }
+            else
+            {
+                TempData["WarningMessage"] = "You are not logged in.";
+            }
             return RedirectToAction("AllTemplate");
         }
 
-        [Authorize]
         public IActionResult CreateTemplate()
         {
-            return View(new TemplateCreateViewModel { Questions = new List<QuestionViewModel> { new QuestionViewModel() } });
+            if (User.Identity.IsAuthenticated)
+            {
+                ViewBag.Topics = new SelectList(_context.Topics, "Id", "TopicName");
+                return View(new TemplateCreateViewModel { Questions = new List<QuestionViewModel> { new QuestionViewModel() } });
+            }
+            else
+            {
+                TempData["WarningMessage"] = "You are not logged in.";
+            }
+            return RedirectToAction("AllTemplate");
         }
 
         [Authorize]
@@ -129,6 +155,7 @@ namespace QuizFolio.Controllers
                         Description = model.Description,
                         IsPublic = model.IsPublic,
                         CreatorId = userId,
+                        TopicId = model.TopicId,
                         Questions = new List<Question>()
                     };
 

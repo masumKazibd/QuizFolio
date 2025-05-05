@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace QuizFolio.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateFormResponsesTable : Migration
+    public partial class topicadd : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,6 +55,19 @@ namespace QuizFolio.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Topics",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TopicName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Topics", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -171,7 +186,8 @@ namespace QuizFolio.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsPublic = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    CreatorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TopicId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -182,6 +198,40 @@ namespace QuizFolio.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Templates_Topics_TopicId",
+                        column: x => x.TopicId,
+                        principalTable: "Topics",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Comments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TemplateId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Comments_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Comments_Templates_TemplateId",
+                        column: x => x.TemplateId,
+                        principalTable: "Templates",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -193,9 +243,7 @@ namespace QuizFolio.Migrations
                     SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TemplateId = table.Column<int>(type: "int", nullable: false),
                     RespondentId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    QuestionId = table.Column<int>(type: "int", nullable: false),
-                    AnswerText = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AnswerOptionsJson = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    AnswersJson = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -207,6 +255,32 @@ namespace QuizFolio.Migrations
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_FormResponses_Templates_TemplateId",
+                        column: x => x.TemplateId,
+                        principalTable: "Templates",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Likes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TemplateId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Likes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Likes_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Likes_Templates_TemplateId",
                         column: x => x.TemplateId,
                         principalTable: "Templates",
                         principalColumn: "Id",
@@ -255,6 +329,16 @@ namespace QuizFolio.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Topics",
+                columns: new[] { "Id", "TopicName" },
+                values: new object[,]
+                {
+                    { 1, "Education" },
+                    { 2, "Quiz" },
+                    { 3, "Other" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -295,6 +379,16 @@ namespace QuizFolio.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comments_TemplateId",
+                table: "Comments",
+                column: "TemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_UserId",
+                table: "Comments",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FormResponses_RespondentId",
                 table: "FormResponses",
                 column: "RespondentId");
@@ -303,6 +397,16 @@ namespace QuizFolio.Migrations
                 name: "IX_FormResponses_TemplateId",
                 table: "FormResponses",
                 column: "TemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Likes_TemplateId",
+                table: "Likes",
+                column: "TemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Likes_UserId",
+                table: "Likes",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_QuestionOptions_QuestionId",
@@ -318,6 +422,11 @@ namespace QuizFolio.Migrations
                 name: "IX_Templates_CreatorId",
                 table: "Templates",
                 column: "CreatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Templates_TopicId",
+                table: "Templates",
+                column: "TopicId");
         }
 
         /// <inheritdoc />
@@ -339,7 +448,13 @@ namespace QuizFolio.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Comments");
+
+            migrationBuilder.DropTable(
                 name: "FormResponses");
+
+            migrationBuilder.DropTable(
+                name: "Likes");
 
             migrationBuilder.DropTable(
                 name: "QuestionOptions");
@@ -355,6 +470,9 @@ namespace QuizFolio.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Topics");
         }
     }
 }

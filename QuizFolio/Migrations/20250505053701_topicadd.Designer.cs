@@ -12,8 +12,8 @@ using QuizFolio.Data;
 namespace QuizFolio.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250428060532_CreateFormResponsesTable")]
-    partial class CreateFormResponsesTable
+    [Migration("20250505053701_topicadd")]
+    partial class topicadd
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,6 +158,37 @@ namespace QuizFolio.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("QuizFolio.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TemplateId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("QuizFolio.Models.FormResponse", b =>
                 {
                     b.Property<int>("Id")
@@ -166,14 +197,9 @@ namespace QuizFolio.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AnswerOptionsJson")
+                    b.Property<string>("AnswersJson")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AnswerText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("int");
 
                     b.Property<string>("RespondentId")
                         .HasColumnType("nvarchar(450)");
@@ -191,6 +217,30 @@ namespace QuizFolio.Migrations
                     b.HasIndex("TemplateId");
 
                     b.ToTable("FormResponses");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Like", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("TemplateId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("QuizFolio.Models.Question", b =>
@@ -269,11 +319,50 @@ namespace QuizFolio.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TopicId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
 
+                    b.HasIndex("TopicId");
+
                     b.ToTable("Templates");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Topic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("TopicName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Topics");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            TopicName = "Education"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            TopicName = "Quiz"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            TopicName = "Other"
+                        });
                 });
 
             modelBuilder.Entity("QuizFolio.Models.Users", b =>
@@ -409,6 +498,25 @@ namespace QuizFolio.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("QuizFolio.Models.Comment", b =>
+                {
+                    b.HasOne("QuizFolio.Models.Template", "Template")
+                        .WithMany("Comments")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuizFolio.Models.Users", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("QuizFolio.Models.FormResponse", b =>
                 {
                     b.HasOne("QuizFolio.Models.Users", "Respondent")
@@ -424,6 +532,25 @@ namespace QuizFolio.Migrations
                     b.Navigation("Respondent");
 
                     b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("QuizFolio.Models.Like", b =>
+                {
+                    b.HasOne("QuizFolio.Models.Template", "Template")
+                        .WithMany("Likes")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuizFolio.Models.Users", "User")
+                        .WithMany("Likes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("QuizFolio.Models.Question", b =>
@@ -456,7 +583,15 @@ namespace QuizFolio.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("QuizFolio.Models.Topic", "Topic")
+                        .WithMany("Templates")
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Creator");
+
+                    b.Navigation("Topic");
                 });
 
             modelBuilder.Entity("QuizFolio.Models.Question", b =>
@@ -466,14 +601,27 @@ namespace QuizFolio.Migrations
 
             modelBuilder.Entity("QuizFolio.Models.Template", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("FormResponses");
+
+                    b.Navigation("Likes");
 
                     b.Navigation("Questions");
                 });
 
+            modelBuilder.Entity("QuizFolio.Models.Topic", b =>
+                {
+                    b.Navigation("Templates");
+                });
+
             modelBuilder.Entity("QuizFolio.Models.Users", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("FormResponses");
+
+                    b.Navigation("Likes");
 
                     b.Navigation("Templates");
                 });
