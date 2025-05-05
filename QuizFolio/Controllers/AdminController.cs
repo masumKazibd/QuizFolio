@@ -1,3 +1,4 @@
+﻿using System.Data;
 using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
@@ -9,36 +10,48 @@ using QuizFolio.ViewModels;
 
 namespace QuizFolio.Controllers;
 
-public class HomeController : Controller
+public class AdminController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<AdminController> _logger;
     private readonly UserManager<Users> _userManager;
     private readonly SignInManager<Users> _signInManager;
 
-    public HomeController(ILogger<HomeController> logger, UserManager<Users> userManager, SignInManager<Users> signInManager)
+    public AdminController(ILogger<AdminController> logger, UserManager<Users> userManager, SignInManager<Users> signInManager)
     {
         _logger = logger;
         _userManager = userManager;
         _signInManager = signInManager;
     }
-    [Authorize]
     public async Task<IActionResult> Index()
     {
-        var users = _userManager.Users.ToList();
-
-        var model = users.Select(user => new DashboardViewModel
+        if (User.Identity.IsAuthenticated)
         {
-            Name = user.FullName,
-            Designation = user.Designation,
-            Email = user.Email,
-            LastLoginTIme = user.LoginTime,
-            LockoutEnd = user.LockoutEnd,
-            IsBlocked = user.IsBlocked
-        })
-            .OrderByDescending(vm => vm.LastLoginTIme)
-            .ToList();
-        return View(model);
+            var users = _userManager.Users.ToList();
+            var model = new List<DashboardViewModel>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+
+                model.Add(new DashboardViewModel
+                {
+                    Name = user.FullName,
+                    Designation = user.Designation,
+                    Email = user.Email,
+                    LastLoginTIme = user.LoginTime,
+                    LockoutEnd = user.LockoutEnd,
+                    IsBlocked = user.IsBlocked,
+                    UserRole = roles.FirstOrDefault() ?? "User"
+                });
+            }
+
+            return View(model.OrderByDescending(vm => vm.LastLoginTIme).ToList());
+        }
+
+        TempData["WarningMessage"] = "You are not logged in";
+        return RedirectToAction("AllTemplate", "Template");
     }
+
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> BlockUsers(List<string> userIds)
@@ -69,7 +82,7 @@ public class HomeController : Controller
 
         TempData["AlertMessage"] = $"{usersToBlock.Count} user(s) blocked successfully.";
         TempData["AlertType"] = "success";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction("AllTemplate", "Template");
     }
     [HttpPost]
     [Authorize]
@@ -133,10 +146,59 @@ public class HomeController : Controller
         TempData["AlertType"] = "success";
         return RedirectToAction(nameof(Index));
     }
-    public IActionResult Formgenarator()
+    [HttpPost]
+    //[Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AddToAdmins(List<string> userIds)
     {
-        return View();
+
+        if (userIds == null || !userIds.Any())
+        {
+            TempData["AlertMessage"] = "No users selected.";
+            TempData["AlertType"] = "danger";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var usersToAdmin = await _userManager.Users
+            .Where(user => userIds.Contains(user.Email))
+            .ToListAsync();
+            
+        foreach (var user in usersToAdmin)
+        {
+            if (!await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                await _userManager.AddToRoleAsync(user, "Admin");
+            }
+        }
+
+        TempData["AlertType"] = "success";
+        TempData["AlertMessage"] = "Selected users have been made Admins.";
+        return RedirectToAction("Index");
     }
+
+    [HttpPost]
+    //[Authorize(Roles = "Admin")]
+    public async Task<IActionResult> RemoveFromAdmins(List<string> userIds)
+    {
+        var currentUserEmail = User.Identity.Name;
+
+        var usersToRemoveFromAdmins = await _userManager.Users
+            .Where(user => userIds.Contains(user.Email))
+            .ToListAsync();
+        foreach (var user in usersToRemoveFromAdmins)
+        {
+            if (await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                await _userManager.RemoveFromRoleAsync(user, "Admin");
+            }
+        }
+
+        TempData["WarningMessage"] = userIds.Contains(currentUserEmail)
+            ? "You removed yourself from the Admin role. You may now lose access."
+            : "Selected users removed from Admins.";
+
+        return RedirectToAction("Index");
+    }
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

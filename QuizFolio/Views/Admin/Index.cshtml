@@ -30,9 +30,11 @@
     <div class="container table-wrapper">
         <div class="row mb-3">
             <div class="col-md-9 d-flex gap-2">
-                <button type="submit" class="btn btn-primary" formaction="@Url.Action("BlockUsers", "Home")">Block</button>
-                <button type="submit" class="btn btn-outline-primary" formaction="@Url.Action("UnBlockUsers", "Home")">Unblock</button>
-                <button type="submit" class="btn btn-outline-danger" formaction="@Url.Action("DeleteUsers", "Home")"> Delete</button>
+                <button type="submit" class="btn btn-primary" formaction="@Url.Action("BlockUsers", "Admin")">Block</button>
+                <button type="submit" class="btn btn-outline-primary" formaction="@Url.Action("UnBlockUsers", "Admin")">Unblock</button>
+                <button type="submit" class="btn btn-outline-danger" formaction="@Url.Action("DeleteUsers", "Admin")"> Delete</button>
+                <button type="submit" class="btn btn-warning" formaction="@Url.Action("AddToAdmins", "Admin")">Add to Admins</button>
+                <button type="submit" class="btn btn-outline-warning" formaction="@Url.Action("RemoveFromAdmins", "Admin")">Remove from Admins</button>
             </div>
             <div class="col-md-3 text-end">
                 <input id="filterInput" type="text" class="form-control" placeholder="Filter by name or email">
@@ -45,22 +47,26 @@
                     <th scope="col"><input type="checkbox" id="selectAll"></th>
                     <th scope="col">Name</th>
                     <th scope="col">Email</th>
+                    <th scope="col">Role</th>
                     <th scope="col">Last seen</th>
                 </tr>
 
             </thead>
             <tbody>
-            @foreach (var user in Model)
-            {
-                    @if (user.IsBlocked==false)
+                @foreach (var user in Model)
+                {
+                    @if (user.IsBlocked == false)
                     {
                         <tr>
                             <td><input type="checkbox" name="userIds" value="@user.Email"></td>
                             <td><strong>@user.Name</strong><br><span class="text-muted">@user.Designation</span></td>
                             <td>@user.Email</td>
                             <td>
+                                <span class="badge bg-@((user.UserRole == "Admin") ? "danger" : "secondary")">@user.UserRole</span>
+                            </td>
+                            <td>
                                 <span data-bs-toggle="tooltip" title="@user.LastLoginTIme.Value.ToString("f")">
-                                    @user.LastLoginTIme.Value.Humanize(utcDate: true,DateTime.Now)
+                                    @user.LastLoginTIme.Value.Humanize(utcDate: true, DateTime.Now)
                                 </span>
                                 <div class="last-seen-bar">
                                     <div class="bar active" style="height: 10px;"></div>
@@ -80,22 +86,26 @@
                             <td><span class="text-muted-line">@user.Name</span><br><span class="text-muted">@user.Designation</span></td>
                             <td class="text-muted">@user.Email</td>
                             <td>
+                                <span class="badge bg-@((user.UserRole == "Admin") ? "danger" : "secondary")">@user.UserRole</span>
+                            </td>
+
+                            <td>
                                 <span data-bs-toggle="tooltip" title="@user.LastLoginTIme.Value.ToString("f")">
                                     @user.LastLoginTIme.Value.Humanize()
                                 </span>
                             </td>
                         </tr>
                     }
-                    
-            }
+
+                }
             </tbody>
         </table>
     </div>
 
 </form>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
@@ -124,4 +134,4 @@
             checkbox.checked = selectAllCheckbox.checked;
         });
     });
-    </script>
+</script>
