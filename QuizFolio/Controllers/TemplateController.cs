@@ -199,7 +199,6 @@ namespace QuizFolio.Controllers
         }
 
         [Authorize]
-        [Authorize]
         public IActionResult EditTemplate(int id)
         {
             var template = _context.Templates
@@ -217,6 +216,7 @@ namespace QuizFolio.Controllers
                 Title = template.Title,
                 Description = template.Description,
                 IsPublic = template.IsPublic,
+                TopicId = template.TopicId,
                 Questions = template.Questions.Select(q => new QuestionViewModel
                 {
                     QuestionTitle = q.QuestionTitle,
@@ -228,9 +228,10 @@ namespace QuizFolio.Controllers
                     }).ToList()
                 }).ToList()
             };
-
-            return View(model);
+            ViewBag.Topics = new SelectList(_context.Topics, "Id", "TopicName", model.TopicId);
+            return View("EditTemplate", model);
         }
+
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> EditTemplate(int id, TemplateCreateViewModel model)
@@ -238,7 +239,7 @@ namespace QuizFolio.Controllers
             if (!ModelState.IsValid)
             {
                 TempData["Message"] = "Invalid form data.";
-                return View(model);
+                return View("EditTemplate", model);
             }
 
             var template = await _context.Templates
@@ -248,7 +249,8 @@ namespace QuizFolio.Controllers
 
             if (template == null)
             {
-                return NotFound();
+                TempData["WarningMessage"] = "Template not found.";
+                return RedirectToAction("AllTemplate");
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -262,7 +264,7 @@ namespace QuizFolio.Controllers
             template.Title = model.Title;
             template.Description = model.Description;
             template.IsPublic = model.IsPublic;
-
+            template.TopicId = model.TopicId;
             // Remove existing questions and options
             _context.QuestionOptions.RemoveRange(template.Questions.SelectMany(q => q.Options));
             _context.Questions.RemoveRange(template.Questions);

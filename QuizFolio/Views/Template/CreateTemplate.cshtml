@@ -26,6 +26,14 @@
                 <label asp-for="Description" class="form-label"></label>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
+            <div class="mb-3 form-floating">
+                <select asp-for="TopicId" asp-items="ViewBag.Topics" class="form-select">
+                    <option value="">-- Select a Topic --</option>
+                </select>
+                <span asp-validation-for="TopicId" class="text-danger"></span>
+                <label for="TopicId" class="form-label">Topic</label>
+
+            </div>
         </div>
     </div>
     <br />

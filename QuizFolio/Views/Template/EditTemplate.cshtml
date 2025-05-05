@@ -27,6 +27,13 @@
                 <label asp-for="Description" class="form-label"></label>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
+            <div class="mb-3 form-floating">
+                <select asp-for="TopicId" asp-items="ViewBag.Topics" class="form-select">
+                    <option value="">-- Select a Topic --</option>
+                </select>
+                <span asp-validation-for="TopicId" class="text-danger"></span>
+                <label for="TopicId" class="form-label">Topic</label>
+            </div>
         </div>
     </div>
     <br />
@@ -113,7 +120,7 @@
                                        <option value="">Select Question Type</option>
         @foreach (var type in Enum.GetValues(typeof(QuizFolio.Models.QuestionType)).Cast<QuizFolio.Models.QuestionType>())
         {
-                                               <option value="@type">@type</option>
+                                                   <option value="@type">@type</option>
         }
                                     </select>
                                     <label>Question Type</label>
