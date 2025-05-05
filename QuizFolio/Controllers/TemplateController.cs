@@ -198,38 +198,45 @@ namespace QuizFolio.Controllers
             }
         }
 
-        [Authorize]
         public IActionResult EditTemplate(int id)
         {
-            var template = _context.Templates
-                .Include(t => t.Questions)
-                .ThenInclude(q => q.Options)
-                .FirstOrDefault(t => t.Id == id);
-
-            if (template == null)
+            if (User.Identity.IsAuthenticated)
             {
-                return NotFound();
-            }
+                var template = _context.Templates
+                    .Include(t => t.Questions)
+                    .ThenInclude(q => q.Options)
+                    .FirstOrDefault(t => t.Id == id);
 
-            var model = new TemplateCreateViewModel
-            {
-                Title = template.Title,
-                Description = template.Description,
-                IsPublic = template.IsPublic,
-                TopicId = template.TopicId,
-                Questions = template.Questions.Select(q => new QuestionViewModel
+                if (template == null)
                 {
-                    QuestionTitle = q.QuestionTitle,
-                    QuestionType = q.QuestionType,
-                    IsRequired = q.IsRequired,
-                    Options = q.Options.Select(o => new QuestionOptionViewModel
+                    return NotFound();
+                }
+
+                var model = new TemplateCreateViewModel
+                {
+                    Title = template.Title,
+                    Description = template.Description,
+                    IsPublic = template.IsPublic,
+                    TopicId = template.TopicId,
+                    Questions = template.Questions.Select(q => new QuestionViewModel
                     {
-                        Option = o.Option
+                        QuestionTitle = q.QuestionTitle,
+                        QuestionType = q.QuestionType,
+                        IsRequired = q.IsRequired,
+                        Options = q.Options.Select(o => new QuestionOptionViewModel
+                        {
+                            Option = o.Option
+                        }).ToList()
                     }).ToList()
-                }).ToList()
-            };
-            ViewBag.Topics = new SelectList(_context.Topics, "Id", "TopicName", model.TopicId);
-            return View("EditTemplate", model);
+                };
+                ViewBag.Topics = new SelectList(_context.Topics, "Id", "TopicName", model.TopicId);
+                return View("EditTemplate", model);
+            }
+            else
+            {
+                TempData["WarningMessage"] = "You are not logged in";
+            }
+            return RedirectToAction("AllTemplate", "Template");
         }
 
         [Authorize]
@@ -287,30 +294,37 @@ namespace QuizFolio.Controllers
             return RedirectToAction("AllTemplate");
         }
 
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> DeleteTemplate(int id)
         {
-            var template = await _context.Templates.FindAsync(id);
-            if (template == null)
-                return NotFound();
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            //var isAdmin = User.IsInRole("Admin");
-
-            //if (template.CreatorId != userId && !isAdmin)
-            if (template.CreatorId != userId)
+            if (User.Identity.IsAuthenticated)
             {
-                TempData["WarningMessage"] = "You are not the creator!";
+                var template = await _context.Templates.FindAsync(id);
+                if (template == null)
+                    return NotFound();
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                //var isAdmin = User.IsInRole("Admin");
+
+                //if (template.CreatorId != userId && !isAdmin)
+                if (template.CreatorId != userId)
+                {
+                    TempData["WarningMessage"] = "You are not the creator!";
+                    return RedirectToAction("AllTemplate");
+                    //return Forbid();
+                }
+
+                _context.Templates.Remove(template);
+                await _context.SaveChangesAsync();
+
+                TempData["Message"] = "Deleted Successfully!!!";
+
                 return RedirectToAction("AllTemplate");
-                //return Forbid();
             }
-
-            _context.Templates.Remove(template);
-            await _context.SaveChangesAsync();
-
-            TempData["Message"] = "Deleted Successfully!!!";
-
+            else
+            {
+                TempData["WarningMessage"] = "You are not logged in";
+            }
             return RedirectToAction("AllTemplate");
         }
 

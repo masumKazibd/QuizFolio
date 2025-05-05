@@ -1,42 +1,27 @@
 ﻿﻿@using Microsoft.AspNetCore.Identity;
 @inject SignInManager<Users> signInManager;
 
-
-@* <ul class="navbar-nav mb-2 mb-lg-0">
- *@    
- <ul class="navbar-nav ms-auto">
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle fa fa-user" href="#" role="button" data-bs-toggle="dropdown"></a>
-        <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" asp-controller="Account" asp-action="PersonalPage">Profile</a></li>
-            @if (signInManager.IsSignedIn(User))
-            {
+    
+@if (signInManager.IsSignedIn(User))
+{
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle fa fa-user" href="#" role="button" data-bs-toggle="dropdown"></a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" asp-controller="Account" asp-action="PersonalPage">Profile</a></li>
                 <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Logout</a></li>
-            }
-            else
-            {
-                <li><a class="dropdown-item" asp-controller="Account" asp-action="Login">Login</a></li>
-                <li><a class="dropdown-item" asp-controller="Account" asp-action="Register">Register</a></li>
-            }
-        </ul>
-    </li>
-</ul>
-@* 
-<ul class="navbar-nav ms-auto">
-    @if (signInManager.IsSignedIn(User))
-    {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Logout">Logout</a>
+            </ul>
         </li>
-    }
-    else
-    {
+    </ul>
+}
+else
+{
+    <ul class="navbar-nav ms-auto">
         <li class="nav-item">
             <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
         </li>
         <li class="nav-item">
             <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
         </li>
-    }
-
-</ul> *@
+    </ul>
+}
