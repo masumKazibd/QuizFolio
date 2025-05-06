@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using QuizFolio.Data;
 using QuizFolio.Models;
 using QuizFolio.ViewModels;
@@ -67,28 +68,47 @@ namespace QuizFolio.Controllers
         }
         public async Task<IActionResult> ViewRespondentList(int id)
         {
-            var template = await _context.Templates
-                .Include(t => t.Creator)
-                .Include(t => t.FormResponses)
-                    .ThenInclude(r => r.Respondent)
-                .FirstOrDefaultAsync(t => t.Id == id);
-            return View(template);
+            if (User.Identity.IsAuthenticated)
+            {
+                var template = await _context.Templates
+                    .Include(t => t.Creator)
+                    .Include(t => t.FormResponses)
+                        .ThenInclude(r => r.Respondent)
+                    .FirstOrDefaultAsync(t => t.Id == id);
+                return View(template);
+            }
+            else
+            {
+                TempData["WarningMessage"] = "You are not logged in!!";
+            }
+            return RedirectToAction("AllTemplate", "Template");
         }
         public async Task<IActionResult> ViewAnswer(int id)
         {
-            var answere = await _context.FormResponses
+
+            var response = await _context.FormResponses
                 .Include(f => f.Template)
                     .ThenInclude(t => t.Creator)
                 .Include(f => f.Respondent)
                 .FirstOrDefaultAsync(f => f.Id == id);
 
-            if (answere == null)
+            if (response == null)
                 return NotFound();
-            var questions = await _context.Questions
-                .Where(q => q.TemplateId == answere.TemplateId)
+
+            var parsedAnswers = JsonConvert.DeserializeObject<List<ParsedAnswerViewModel>>(response.AnswersJson);
+
+            var questionMap = await _context.Questions
+                .Where(q => q.TemplateId == response.TemplateId)
                 .ToDictionaryAsync(q => q.Id, q => q.QuestionTitle);
-            ViewBag.QuestionMap = questions;
-            return View(answere);
+
+            var vm = new FormAnswerDetailViewModel
+            {
+                Response = response,
+                ParsedAnswers = parsedAnswers,
+                QuestionMap = questionMap
+            };
+
+            return View(vm);
         }
     }
 }

@@ -1,29 +1,21 @@
-﻿@using Newtonsoft.Json
-@using QuizFolio.ViewModels
-@model QuizFolio.Models.FormResponse
-
-@{
-    var answers = JsonConvert.DeserializeObject<List<ParsedAnswerViewModel>>(Model.AnswersJson);
-    var questionMap = ViewBag.QuestionMap as Dictionary<int, string>;
-}
+﻿@model QuizFolio.ViewModels.FormAnswerDetailViewModel
 
 <div class="card">
     <div class="card-header">
         <h3>Answer Details</h3>
-
-        <p><strong>Form:</strong> @Model.Template?.Title</p>
-        <p><strong>Creator:</strong> @Model.Template?.Creator?.FullName</p>
-        <p><strong>Respondent:</strong> @Model.Respondent?.FullName</p>
-        <p><strong>Submitted At:</strong> @Model.SubmittedAt.ToLocalTime()</p>
+        <p><strong>Form:</strong> @Model.Response.Template?.Title</p>
+        <p><strong>Creator:</strong> @Model.Response.Template?.Creator?.FullName</p>
+        <p><strong>Respondent:</strong> @Model.Response.Respondent?.FullName</p>
+        <p><strong>Submitted At:</strong> @Model.Response.SubmittedAt.ToLocalTime()</p>
     </div>
 
     <div class="card-body">
         <h4>Responses:</h4>
         <ul class="list-group">
-            @foreach (var answer in answers)
+            @foreach (var answer in Model.ParsedAnswers)
             {
-                var questionText = questionMap != null && questionMap.ContainsKey(answer.QuestionId)
-                ? questionMap[answer.QuestionId]
+                var questionText = Model.QuestionMap.TryGetValue(answer.QuestionId, out var qText)
+                ? qText
                 : $"Question #{answer.QuestionId}";
 
                 <li class="list-group-item">
