@@ -1,0 +1,39 @@
+﻿@using Newtonsoft.Json
+@using QuizFolio.ViewModels
+@model QuizFolio.Models.FormResponse
+
+@{
+    var answers = JsonConvert.DeserializeObject<List<ParsedAnswerViewModel>>(Model.AnswersJson);
+    var questionMap = ViewBag.QuestionMap as Dictionary<int, string>;
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3>Answer Details</h3>
+
+        <p><strong>Form:</strong> @Model.Template?.Title</p>
+        <p><strong>Creator:</strong> @Model.Template?.Creator?.FullName</p>
+        <p><strong>Respondent:</strong> @Model.Respondent?.FullName</p>
+        <p><strong>Submitted At:</strong> @Model.SubmittedAt.ToLocalTime()</p>
+    </div>
+
+    <div class="card-body">
+        <h4>Responses:</h4>
+        <ul class="list-group">
+            @foreach (var answer in answers)
+            {
+                var questionText = questionMap != null && questionMap.ContainsKey(answer.QuestionId)
+                ? questionMap[answer.QuestionId]
+                : $"Question #{answer.QuestionId}";
+
+                <li class="list-group-item">
+                    <strong>@questionText</strong><br />
+                    @foreach (var opt in answer.Options.Where(o => !string.IsNullOrWhiteSpace(o)))
+                    {
+                        <div>@opt</div>
+                    }
+                </li>
+            }
+        </ul>
+    </div>
+</div>

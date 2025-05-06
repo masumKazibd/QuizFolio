@@ -93,7 +93,8 @@
                                                     {
                                                         <div class="comment p-2">
                                                             <div class="comment-header">
-                                                                <strong>@comment.User.UserName</strong>
+                                                                <i class="fa fa-user"></i>
+                                                                <strong>@comment.User.FullName</strong>
                                                                 <span class="text-muted">@comment.CreatedAt.ToString("g")</span>
                                                             </div>
                                                             <p>@comment.Content</p>
@@ -131,10 +132,10 @@
                     {
                         <tr>
                             <td>@template.Title</td>
-                            <td>@template.Creator?.UserName</td>
+                            <td>@template.Creator?.FullName</td>
                             <td>@(template.FormResponses?.Count ?? 0)</td>
                             <td>
-                                <a asp-controller="Form" asp-action="ViewForm" asp-route-id="@template.Id" class="btn btn-sm btn-outline-primary">View</a>
+                                <a asp-controller="Form" asp-action="ViewRespondentList" asp-route-id="@template.Id" class="btn btn-sm btn-outline-primary">View</a>
                             </td>
                         </tr>
                     }

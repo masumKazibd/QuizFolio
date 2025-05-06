@@ -65,5 +65,39 @@ namespace QuizFolio.Controllers
             TempData["Message"] = "Form submitted successfully.";
             return RedirectToAction("AllTemplate", "Template");
         }
+        public async Task<IActionResult> Index()
+        {
+            var responses = await _context.FormResponses
+                .Include(r => r.Template)
+                .Include(r => r.Respondent)
+                .ToListAsync();
+
+            return View(responses);
+        }
+        public async Task<IActionResult> ViewRespondentList(int id)
+        {
+            var template = await _context.Templates
+                .Include(t => t.Creator)
+                .Include(t => t.FormResponses)
+                    .ThenInclude(r => r.Respondent)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            return View(template);
+        }
+        public async Task<IActionResult> ViewAnswer(int id)
+        {
+            var answere = await _context.FormResponses
+                .Include(f => f.Template)
+                    .ThenInclude(t => t.Creator)
+                .Include(f => f.Respondent)
+                .FirstOrDefaultAsync(f => f.Id == id);
+
+            if (answere == null)
+                return NotFound();
+            var questions = await _context.Questions
+                .Where(q => q.TemplateId == answere.TemplateId)
+                .ToDictionaryAsync(q => q.Id, q => q.QuestionTitle);
+            ViewBag.QuestionMap = questions;
+            return View(answere);
+        }
     }
 }

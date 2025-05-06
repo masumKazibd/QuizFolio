@@ -30,7 +30,7 @@
                     @foreach (var template in Model.Templates)
                     {
                         <tr>
-                            <td><a href="@Url.Action("ViewTemplate", "Template", new { id = template.Id })">@template.Title</a></td>
+                            <td><a href="@Url.Action("ViewForm", "Form", new { id = template.Id })">@template.Title</a></td>
                             <td>@template.Description</td>
                             <td>
                                 <a class="btn btn-sm btn-outline-primary" href="@Url.Action("EditTemplate", "Template", new { id = template.Id })">Edit</a>
@@ -61,7 +61,7 @@
                     {
                         <tr>
                             <td>@form.Template.Title</td>
-                            <td>@form.RespondentId</td>
+                            <td>@form.Respondent.FullName</td>
                             <td>@form.SubmittedAt</td>
                             <td>
                                 <a class="btn btn-sm btn-outline-primary" href="@Url.Action("ViewForm", "Form", new { id = form.Id })">View</a>

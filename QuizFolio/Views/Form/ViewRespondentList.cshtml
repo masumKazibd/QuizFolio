@@ -1,0 +1,41 @@
+﻿@model QuizFolio.Models.Template
+<div class="card">
+    <div class="card-header">
+        <h2>Responses for: @Model.Title</h2>
+        <p class="fa fa-user"> @Model.Creator?.FullName</p>
+    </div>
+    <div class="card-body">
+
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Respondent</th>
+                    <th>Submitted At</th>
+                    <th>Answers</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.FormResponses != null && Model.FormResponses.Any())
+                {
+                    var index = 1;
+                    foreach (var response in Model.FormResponses.OrderByDescending(r => r.SubmittedAt))
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@(response.Respondent?.FullName ?? "Anonymous")</td>
+                            <td>@response.SubmittedAt.ToLocalTime()</td>
+                            <td><a asp-action="ViewAnswer" asp-controller="Form" asp-route-id="@response.Id" class="btn btn-outline-dark">View Answer</a></td>
+                        </tr>
+                        index++;
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="4">No responses yet.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

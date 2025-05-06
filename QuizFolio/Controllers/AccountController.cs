@@ -183,6 +183,7 @@ namespace QuizFolio.Controllers
             var userTemplates = _context.Templates
                 .Where(t => t.CreatorId == userId)
                 .Include(t => t.FormResponses)
+                .ThenInclude(t => t.Respondent)
                 .ToList();
 
             var userForms = _context.FormResponses
