@@ -37,6 +37,9 @@
                                 case QuizFolio.Models.QuestionType.Text:
                                     <input type="text" class="form-control" name="Answers[@index].Options" placeholder="Enter text" />
                                     break;
+                                case QuizFolio.Models.QuestionType.TextArea:
+                                    <textarea type="text" class="form-control" name="Answers[@index].Options" placeholder="Enter text"></textarea>
+                                    break;
                                 case QuizFolio.Models.QuestionType.Dropdown:
                                     <select class="form-select" name="Answers[@index].Options">
                                         <option value="">Select an option</option>
