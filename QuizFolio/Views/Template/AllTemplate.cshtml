@@ -58,7 +58,9 @@
                             </div>
 
                             <div class="card-footer row">
-                                <p>Creator: @Template.Creator</p><br />
+                                <p class="">
+                                    <i class="fa fa-user-circle text-secondary" aria-hidden="true"></i> @Template.Creator.FullName
+                                </p><br />
                                 <div class="col-6">
                                     <form method="post" asp-controller="Template" asp-action="LikeTemplate" asp-route-id="@Template.Id">
                                         <button type="submit" class="btn btn-sm @(alreadyLiked ? "btn-outline-primary" : "btn-outline")">
