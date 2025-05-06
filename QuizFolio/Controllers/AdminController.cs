@@ -58,8 +58,7 @@ public class AdminController : Controller
     {
         if(userIds == null || !userIds.Any())
         {
-            TempData["AlertMessage"] = "No users selected.";
-            TempData["AlertType"] = "danger";
+            TempData["WarningMessage"] = "No users selected.";
             return RedirectToAction(nameof(Index));
         }
  
@@ -80,8 +79,7 @@ public class AdminController : Controller
             }
         }
 
-        TempData["AlertMessage"] = $"{usersToBlock.Count} user(s) blocked successfully.";
-        TempData["AlertType"] = "success";
+        TempData["Message"] = $"{usersToBlock.Count} user(s) blocked successfully.";
         return RedirectToAction("AllTemplate", "Template");
     }
     [HttpPost]
@@ -90,8 +88,7 @@ public class AdminController : Controller
     {
         if (userIds == null || !userIds.Any())
         {
-            TempData["AlertMessage"] = "No users selected.";
-            TempData["AlertType"] = "danger";
+            TempData["WarningMessage"] = "No users selected.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -106,8 +103,7 @@ public class AdminController : Controller
             user.LockoutEnabled = true;
             await _userManager.UpdateAsync(user);
         }
-        TempData["AlertMessage"] = $"{usersToUnBlock.Count} user(s) unblocked successfully.";
-        TempData["AlertType"] = "success";
+        TempData["Message"] = $"{usersToUnBlock.Count} user(s) unblocked successfully.";
         return RedirectToAction(nameof(Index));
     }
     [HttpPost]
@@ -133,8 +129,7 @@ public class AdminController : Controller
             if (!result.Succeeded)
             {
 
-                TempData["AlertMessage"] = "Failed to delete users";
-                TempData["AlertType"] = "danger";
+                TempData["WarningMessage"] = "Failed to delete users";
                 return RedirectToAction(nameof(Index));
             }
             if (user.Email.Equals(currentUserEmail, StringComparison.OrdinalIgnoreCase))
@@ -153,8 +148,7 @@ public class AdminController : Controller
 
         if (userIds == null || !userIds.Any())
         {
-            TempData["AlertMessage"] = "No users selected.";
-            TempData["AlertType"] = "danger";
+            TempData["WarningMessage"] = "No users selected.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -170,8 +164,7 @@ public class AdminController : Controller
             }
         }
 
-        TempData["AlertType"] = "success";
-        TempData["AlertMessage"] = "Selected users have been made Admins.";
+        TempData["Message"] = "Selected users have been made Admins.";
         return RedirectToAction("Index");
     }
 

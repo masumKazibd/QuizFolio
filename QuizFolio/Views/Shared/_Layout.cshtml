@@ -46,14 +46,14 @@
 
             @if (TempData["Message"] != null)
             {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
                     @TempData["Message"]
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
             @if (TempData["WarningMessage"] != null)
             {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div id="warningAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
                     @TempData["WarningMessage"]
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
@@ -69,25 +69,20 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+    @* <script src="~/js/site.js" asp-append-version="true"></script> *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
 <script>
-    // Auto-hide success alert after 3 seconds
+    // Auto-hide alert after 3 seconds
     setTimeout(() => {
         const successAlert = document.getElementById('successAlert');
-        if (successAlert) {
-            const bsAlert = new bootstrap.Alert(successAlert);
-            bsAlert.close();
-        }
+        if (successAlert) new bootstrap.Alert(successAlert).close();
 
         const warningAlert = document.getElementById('warningAlert');
-        if (warningAlert) {
-            const bsAlert = new bootstrap.Alert(warningAlert);
-            bsAlert.close();
-        }
-    }, 3000); // 3 seconds
+        if (warningAlert) new bootstrap.Alert(warningAlert).close();
+    }, 3000);
 </script>
