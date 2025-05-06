@@ -65,15 +65,6 @@ namespace QuizFolio.Controllers
             TempData["Message"] = "Form submitted successfully.";
             return RedirectToAction("AllTemplate", "Template");
         }
-        public async Task<IActionResult> Index()
-        {
-            var responses = await _context.FormResponses
-                .Include(r => r.Template)
-                .Include(r => r.Respondent)
-                .ToListAsync();
-
-            return View(responses);
-        }
         public async Task<IActionResult> ViewRespondentList(int id)
         {
             var template = await _context.Templates
