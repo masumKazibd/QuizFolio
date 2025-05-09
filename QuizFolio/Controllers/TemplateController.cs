@@ -9,6 +9,7 @@ using QuizFolio.ViewModels;
 using System.Diagnostics.Eventing.Reader;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace QuizFolio.Controllers
 {
@@ -198,7 +199,7 @@ namespace QuizFolio.Controllers
             }
         }
 
-        public IActionResult EditTemplate(int id)
+        public async Task<IActionResult> EditTemplate(int id)
         {
             if (User.Identity.IsAuthenticated)
             {
@@ -210,6 +211,15 @@ namespace QuizFolio.Controllers
                 if (template == null)
                 {
                     return NotFound();
+                }
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var isAdmin = await userManager.IsInRoleAsync(await userManager.GetUserAsync(User), "Admin");
+
+                if (template.CreatorId != userId && !isAdmin)
+                {
+                    TempData["WarningMessage"] = "You do not have permission to edit this template.";
+                    return RedirectToAction("AllTemplate", "Template");
                 }
 
                 var model = new TemplateCreateViewModel

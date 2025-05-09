@@ -31,8 +31,16 @@
                     <div class="col">
                         <div class="card-template h-100">
                             <div class="card-header-template">
-                                <i class="fa fa-tag"> @Template.Topic.TopicName</i>
-                                <button class="menu-button" onclick="toggleMenu('@menuId')">⋮</button>
+                                <i class="fa fa-tag col-10"> @Template.Topic.TopicName</i>
+                                @if(Template.IsPublic == true)
+                                {
+                                    <div class="fa fa-globe col-1" data-toggle="tooltip" data-placement="top" title="Public"></div>
+                                }
+                                else
+                                {
+                                    <div class="fa fa-lock col-1" data-toggle="tooltip" data-placement="top" title="Private"></div>
+                                }
+                                <button class="menu-button col-1" onclick="toggleMenu('@menuId')">⋮</button>
                             </div>
 
                             <img src="~/images/form-header.jpg" alt="Template Image" style="width:100%; height:180px; object-fit:cover;">
