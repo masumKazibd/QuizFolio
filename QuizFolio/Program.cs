@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuizFolio.Models;
-using System;
 using QuizFolio.Data;
-using QuizFolio.Models;
+using QuizFolio.Service.Salesforce;
+using QuizFolio.Services.Salesforce;
+using Polly.Extensions.Http;
+using Polly;
+using System.Net;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +30,25 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+// Add configuration
+builder.Services.Configure<SalesforceSettings>(builder.Configuration.GetSection("Salesforce"));
+
+// Register Salesforce services
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<SalesforceAuth>(provider =>
+{
+    var config = provider.GetRequiredService<IOptions<SalesforceSettings>>().Value;
+    var logger = provider.GetRequiredService<ILogger<SalesforceAuth>>();
+    return new SalesforceAuth(
+        logger,
+        config.ClientId,
+        config.ClientSecret,
+        config.Username,
+        config.Password,
+        config.LoginUrl);
+});
+
+builder.Services.AddScoped<ISalesforceService, SalesforceService>();
 var app = builder.Build();
 
     //  Role Creation
@@ -60,5 +83,12 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Template}/{action=AllTemplate}/{id?}");
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .OrResult(msg => msg.StatusCode == HttpStatusCode.TooManyRequests)
+        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+}
 
 app.Run();

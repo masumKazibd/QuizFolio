@@ -1,0 +1,20 @@
+﻿@model QuizFolio.ViewModels.Salesforce.LimitsViewModel
+
+@{
+    ViewData["Title"] = "Salesforce Limits";
+}
+
+<h2>Salesforce API Limits</h2>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h4>Raw Response</h4>
+    </div>
+    <div class="card-body">
+        <pre>@Model.RawJson</pre>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="CreateAccount" class="btn btn-primary">Create New Account</a>
+</div>

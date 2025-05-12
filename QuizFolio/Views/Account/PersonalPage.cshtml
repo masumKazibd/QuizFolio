@@ -1,6 +1,26 @@
 ﻿@using QuizFolio.ViewModels
 @model PersonalPageViewModel
-
+@if (string.IsNullOrEmpty(Model.SalesforceContactId))
+{
+    <div class="alert alert-info">
+        <h5>Enhance Your Experience</h5>
+        <p>Connect your account to our CRM system for better support and personalized offers.</p>
+        <a asp-action="ConnectToCrm" asp-controller="Salesforce" class="btn btn-primary">
+            <i class="fas fa-link"></i> Connect to CRM
+        </a>
+    </div>
+}
+else
+{
+    <div class="alert alert-success">
+        <h5>CRM Connected</h5>
+        <p>Your account is connected to our CRM system.</p>
+        <a href="https://your-salesforce-instance.lightning.force.com/@Model.SalesforceContactId"
+           target="_blank" class="btn btn-success">
+            <i class="fas fa-external-link-alt"></i> View in CRM
+        </a>
+    </div>
+}
 <div class="container mt-4">
     <h3>Your Personal Page</h3>
 
