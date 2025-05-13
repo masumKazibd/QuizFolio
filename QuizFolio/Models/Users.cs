@@ -11,8 +11,8 @@ namespace QuizFolio.Models
         public bool IsAdmin { get; set; }
 
         //Salesforce
-        public string SalesforceAccountId { get; set; }
-        public string SalesforceContactId { get; set; }
+        public string? SalesforceAccountId { get; set; }
+        public string? SalesforceContactId { get; set; }
         public DateTime? SalesforceLastSync { get; set; }
         public bool SubscribeToNewsletter { get; set; }
         public bool ReceiveProductUpdates { get; set; }

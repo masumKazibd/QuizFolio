@@ -79,6 +79,8 @@ namespace QuizFolio.Controllers
                     Designation = model.Designation,
                     Email = model.Email,
                     UserName = model.Email,
+                    SalesforceAccountId = null,
+                    SalesforceContactId = null
 
                 };
 
