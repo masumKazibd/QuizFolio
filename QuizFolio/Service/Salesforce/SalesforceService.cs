@@ -13,7 +13,7 @@ namespace QuizFolio.Services.Salesforce
     public class SalesforceService : ISalesforceService, IDisposable
     {
         private readonly ILogger<SalesforceService> _logger;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly SalesforceAuth _authService;
         private AuthResponse _authResponse;
         private bool _disposed;
@@ -24,23 +24,21 @@ namespace QuizFolio.Services.Salesforce
             SalesforceAuth authService)
         {
             _logger = logger;
-            _httpClient = httpClientFactory.CreateClient();
+            _httpClientFactory = httpClientFactory;
             _authService = authService;
         }
 
         public async Task Authenticate()
         {
             _authResponse = await _authService.LoginAsync();
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _authResponse.access_token);
-            _httpClient.BaseAddress = new Uri(_authResponse.instance_url);
         }
 
         public async Task<string> GetLimits()
         {
             try
             {
-                var response = await _httpClient.GetAsync("/services/data/v56.0/limits");
+                using var client = CreateAuthenticatedClient();
+                var response = await client.GetAsync("/services/data/v56.0/limits");
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadAsStringAsync();
             }
@@ -55,6 +53,8 @@ namespace QuizFolio.Services.Salesforce
         {
             await EnsureAuthenticated();
 
+            using var client = CreateAuthenticatedClient();
+
             var accountData = new
             {
                 Name = name,
@@ -67,37 +67,35 @@ namespace QuizFolio.Services.Salesforce
                 Encoding.UTF8,
                 "application/json");
 
-            var response = await _httpClient.PostAsync(
+            var response = await client.PostAsync(
                 "/services/data/v56.0/sobjects/Account/",
                 content);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new HttpRequestException($"Account creation failed: {response.StatusCode} - {errorContent}");
-            }
-
-            var responseContent = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<AccountCreationResult>(responseContent);
+            response.EnsureSuccessStatusCode();
+            return JsonConvert.DeserializeObject<AccountCreationResult>(
+                await response.Content.ReadAsStringAsync());
         }
+
         public async Task<ContactCreationResult> CreateContact(SalesforceContactModel contact)
         {
             try
             {
                 await EnsureAuthenticated();
+                using var client = CreateAuthenticatedClient();
 
                 var contactData = new
                 {
-                    FirstName = contact.FirstName,
+                    //FirstName = contact.FirstName,
                     LastName = contact.LastName,
                     Email = contact.Email,
-                    Phone = contact.Phone,
-                    AccountId = contact.AccountId, // Link to existing account
-                    MailingStreet = contact.Address,
-                    MailingCity = contact.City,
-                    MailingState = contact.State,
-                    MailingPostalCode = contact.ZipCode,
-                    Description = $"Created from website on {DateTime.UtcNow:yyyy-MM-dd}"
+                    //Phone = contact.Phone,
+                    //AccountId = contact.AccountId,
+                    //MailingStreet = contact.Address,
+                    //MailingCountry = contact.Country,
+                    //MailingCity = contact.City,
+                    //MailingState = contact.State,
+                    //MailingPostalCode = contact.ZipCode,
+                    //Description = $"Created from website on {DateTime.UtcNow:yyyy-MM-dd}"
                 };
 
                 var content = new StringContent(
@@ -105,7 +103,7 @@ namespace QuizFolio.Services.Salesforce
                     Encoding.UTF8,
                     "application/json");
 
-                var response = await _httpClient.PostAsync(
+                var response = await client.PostAsync(
                     "/services/data/v56.0/sobjects/Contact/",
                     content);
 
@@ -140,30 +138,31 @@ namespace QuizFolio.Services.Salesforce
             public string Message { get; set; }
             public string[] Fields { get; set; }
         }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose()
         {
             if (!_disposed)
             {
-                if (disposing)
-                {
-                    _httpClient?.Dispose();
-                }
                 _disposed = true;
+                GC.SuppressFinalize(this);
             }
         }
+
         private async Task EnsureAuthenticated()
         {
-            // Check if we have no token or if token is expired (Salesforce tokens typically last 1 hour)
             if (_authResponse == null || IsTokenExpired())
             {
                 await Authenticate();
             }
+        }
+
+        private HttpClient CreateAuthenticatedClient()
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", _authResponse.access_token);
+            client.BaseAddress = new Uri(_authResponse.instance_url);
+            return client;
         }
 
         private bool IsTokenExpired()
@@ -174,11 +173,11 @@ namespace QuizFolio.Services.Salesforce
             try
             {
                 var issuedAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(_authResponse.issued_at));
-                return DateTimeOffset.UtcNow >= issuedAt.AddHours(1); // Salesforce tokens typically expire in 1 hour
+                return DateTimeOffset.UtcNow >= issuedAt.AddHours(1);
             }
             catch
             {
-                return true; // If we can't parse the timestamp, assume expired
+                return true;
             }
         }
     }

@@ -8,7 +8,6 @@ namespace QuizFolio.ViewModels.Salesforce
         [Display(Name = "Company Name")]
         public string CompanyName { get; set; }
 
-        // Add required Country field
         [Display(Name = "Country")]
         public string Country { get; set; }
 
@@ -23,7 +22,6 @@ namespace QuizFolio.ViewModels.Salesforce
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
-        [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }

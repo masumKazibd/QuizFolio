@@ -40,21 +40,13 @@ namespace QuizFolio.Controllers
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "Salesforce authentication failed");
-                TempData["ErrorMessage"] = ex.Message; // Or a user-friendly message
+                TempData["WarningMessage"] = ex.Message;
                 return RedirectToAction("Error");
             }
         }
         [HttpGet]
         public async Task<IActionResult> ConnectToCrm()
         {
-            ViewBag.Countries = new SelectList(new[]
-                {
-                    new { Value = "US", Text = "United States" },
-                    new { Value = "CA", Text = "Canada" },
-                    new { Value = "GB", Text = "United Kingdom" },
-                    new { Value = "AU", Text = "Australia" },
-                }, "Value", "Text");
             var user = await _userManager.GetUserAsync(User);
             var model = new CrmIntegrationViewModel
             {
@@ -70,13 +62,6 @@ namespace QuizFolio.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConnectToCrm(CrmIntegrationViewModel model)
         {
-            ViewBag.Countries = new SelectList(new[]
-                {
-                    new { Value = "US", Text = "United States" },
-                    new { Value = "CA", Text = "Canada" },
-                    new { Value = "GB", Text = "United Kingdom" },
-                    new { Value = "AU", Text = "Australia" },
-                }, "Value", "Text");
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -84,7 +69,6 @@ namespace QuizFolio.Controllers
 
             try
             {
-                // Create Account in Salesforce
                 var accountResult = await _salesforceService.CreateAccount(
                     model.CompanyName,
                     model.Country,
@@ -99,6 +83,7 @@ namespace QuizFolio.Controllers
                     Phone = model.Phone,
                     AccountId = accountResult.Id,
                     Address = model.Address,
+                    Country = model.Country,
                     City = model.City,
                     State = model.State,
                     ZipCode = model.ZipCode
@@ -110,13 +95,13 @@ namespace QuizFolio.Controllers
                 user.SalesforceContactId = contactResult.Id;
                 await _userManager.UpdateAsync(user);
 
-                TempData["SuccessMessage"] = "Your account has been successfully connected to our CRM system!";
-                return RedirectToAction("Profile", "Account");
+                TempData["Message"] = "Your account has been successfully connected to our CRM system!";
+                return RedirectToAction("PersonalPage", "Account");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "CRM integration failed for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
-                ModelState.AddModelError("", "Failed to connect to CRM. Please try again later.");
+                TempData["WarningMessage"] = $"CRM integration failed for user {User.FindFirstValue(ClaimTypes.NameIdentifier)}"; ModelState.AddModelError("", "Failed to connect to CRM. Please try again later.");
                 return View(model);
             }
         }
