@@ -85,17 +85,17 @@ namespace QuizFolio.Services.Salesforce
 
                 var contactData = new
                 {
-                    //FirstName = contact.FirstName,
+                    FirstName = contact.FirstName,
                     LastName = contact.LastName,
                     Email = contact.Email,
-                    //Phone = contact.Phone,
-                    //AccountId = contact.AccountId,
-                    //MailingStreet = contact.Address,
-                    //MailingCountry = contact.Country,
-                    //MailingCity = contact.City,
-                    //MailingState = contact.State,
-                    //MailingPostalCode = contact.ZipCode,
-                    //Description = $"Created from website on {DateTime.UtcNow:yyyy-MM-dd}"
+                    Phone = contact.Phone,
+                    AccountId = contact.AccountId,
+                    MailingStreet = contact.Address,
+                    MailingCountry = contact.Country,
+                    MailingCity = contact.City,
+                    MailingState = contact.State,
+                    MailingPostalCode = contact.ZipCode,
+                    Description = $"Created from website on {DateTime.UtcNow:yyyy-MM-dd}"
                 };
 
                 var content = new StringContent(
