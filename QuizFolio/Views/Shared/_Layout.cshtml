@@ -31,6 +31,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Salesforce" asp-action="Limits">SalesforceApiLimit</a>
                         </li>
+                        @* In the header/navbar section *@
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Support" asp-action="CreateTicket" asp-route-returnUrl="@Context.Request.Path">
+                                <i class="fas fa-question-circle"></i> Help
+                            </a>
+                        </li>
                         <!-- Search Form -->
                         <form class="d-flex" method="get" asp-controller="Template" asp-action="Search">
                             <input class="form-control me-2" type="search" placeholder="Search templates..." aria-label="Search" name="searchTerm" />
@@ -65,8 +71,11 @@
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
+    <div class="container mt-4 text-center">
+        <a asp-controller="Support" asp-action="CreateTicket" asp-route-returnUrl="@Context.Request.Path"
+           class="text-muted">Create support ticket</a>
+    </div>
+    <footer class="top footer text-muted">
         <div class="container">
             &copy; 2025 - QuizFolio - Masum Kazi<a asp-area="" asp-controller="" asp-action=""></a>
         </div>

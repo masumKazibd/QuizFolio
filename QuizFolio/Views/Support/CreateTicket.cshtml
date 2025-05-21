@@ -1,0 +1,89 @@
+﻿@using QuizFolio.ViewModels.Support
+@model SupportTicketViewModel
+
+@{
+    ViewData["Title"] = "Create Support Ticket";
+}
+<div class="d-flex justify-content-center mt-5">
+    <div class="card col-6 shadow-lg rounded">
+        <h5 class="card-header">Create Support Ticket</h5>
+        <div class="card-body">
+            <form asp-action="CreateTicket" method="post" id="supportTicketForm">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                
+                <input type="hidden" asp-for="ReturnUrl" />
+                
+                <div class="form-group mb-3">
+                    <label asp-for="Template" class="control-label">Related Template</label>
+                    <select asp-for="Template" class="form-control">
+                        <option value="">-- Select Template (Optional) --</option>
+                        @if (ViewBag.Templates != null)
+                        {
+                            foreach (var template in ViewBag.Templates as List<QuizFolio.Models.Template>)
+                            {
+                                <option value="@template.Title">@template.Title</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="Template" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label asp-for="Summary" class="control-label">Issue Description</label>
+                    <textarea asp-for="Summary" class="form-control" rows="3" 
+                        placeholder="Please describe your issue in detail (10-1000 characters)"
+                        required minlength="10" maxlength="1000"></textarea>
+                    <span asp-validation-for="Summary" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label asp-for="Priority" class="control-label">Priority Level</label>
+                    <select asp-for="Priority" class="form-control" required>
+                        <option value="">-- Select Priority --</option>
+                        <option value="High">High</option>
+                        <option value="Average">Average</option>
+                        <option value="Low">Low</option>
+                    </select>
+                    <span asp-validation-for="Priority" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Submit Ticket</button>
+                    <a href="@Model.ReturnUrl" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+
+        // Form validation
+        $(document).ready(function() {
+            $('#supportTicketForm').on('submit', function(e) {
+                var summary = $('#Summary').val();
+                var priority = $('#Priority').val();
+
+                if (!summary || summary.length < 10) {
+                    e.preventDefault();
+                    alert('Please provide a description of at least 10 characters.');
+                    return false;
+                }
+
+                if (!priority) {
+                    e.preventDefault();
+                    alert('Please select a priority level.');
+                    return false;
+                }
+            });
+        });
+    </script>
+}

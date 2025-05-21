@@ -8,7 +8,9 @@ using Polly.Extensions.Http;
 using Polly;
 using System.Net;
 using Microsoft.Extensions.Options;
-
+using QuizFolio.Service.OneDrive;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Identity.Web;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -35,6 +37,7 @@ builder.Services.Configure<SalesforceSettings>(builder.Configuration.GetSection(
 
 // Register Salesforce services
 builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<SalesforceAuth>(provider =>
 {
     var config = provider.GetRequiredService<IOptions<SalesforceSettings>>().Value;
@@ -49,6 +52,21 @@ builder.Services.AddScoped<SalesforceAuth>(provider =>
 });
 
 builder.Services.AddScoped<ISalesforceService, SalesforceService>();
+builder.Services.AddScoped<QuizFolio.Service.OneDrive.OneDriveService>();
+builder.Services.AddApplicationInsightsTelemetry();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = OpenIdConnectDefaults.AuthenticationScheme;
+})
+.AddMicrosoftIdentityWebApp(options =>
+{
+    builder.Configuration.Bind("AzureAd", options);
+    options.Scope.Add("https://graph.microsoft.com/Files.ReadWrite");
+});
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
     //  Role Creation
